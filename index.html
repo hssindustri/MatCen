@@ -3,27 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MatCen - Material Center</title>
-    <link rel="stylesheet" href="style.css">
+    <title>MatCen - Material Center Indonesia</title>
+    <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Untuk dashboard charts -->
 </head>
 <body>
     <header>
         <nav class="navbar">
             <div class="nav-brand">
                 <i class="fas fa-industry"></i> MatCen
+                <span class="gov-badge"><i class="fas fa-shield-alt"></i> Diawasi Kemenperin</span>
             </div>
             <div class="search-bar">
-                <input type="text" placeholder="Cari bahan baku...">
-                <button><i class="fas fa-search"></i></button>
+                <input type="text" id="searchInput" placeholder="Cari bahan baku...">
+                <button onclick="searchMaterials()"><i class="fas fa-search"></i></button>
             </div>
             <ul class="nav-menu">
                 <li><a href="#program"><i class="fas fa-gavel"></i> Program</a></li>
-                <li><a href="#kategori"><i class="fas fa-boxes"></i> Kategori</a></li>
-                <li><a href="#supplier">Supplier</a></li>
-                <li><a href="#industri">Industri</a></li>
-                <li><button class="btn-login" onclick="showModal()">Masuk</button></li>
+                <li><a href="#kategori"><i class="fas fa-boxes"></i> Katalog</a></li>
+                <li><a href="#supplier"><i class="fas fa-users"></i> Supplier</a></li>
+                <li><a href="#industri"><i class="fas fa-building"></i> Industri</a></li>
+                <li id="navLogin"><a href="#" onclick="showModal('login')"><i class="fas fa-sign-in-alt"></i> Masuk</a></li>
+                <li id="navUser" class="nav-user" style="display:none;">
+                    <span id="userName"></span>
+                    <button onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                </li>
             </ul>
         </nav>
     </header>
@@ -31,134 +37,130 @@
         <section class="hero">
             <div class="hero-content">
                 <h1>Material Center Indonesia</h1>
-                <p>Hubungkan Supplier Bahan Baku dengan Industri Dalam Negeri. Diawasi Pemerintah untuk Kemitraan Optimal.</p>
+                <p>Hubungkan Supplier Bahan Baku dengan Industri Dalam Negeri. Program Link & Match Otomotif – Diawasi Kementerian Perindustrian.</p>
                 <div class="hero-buttons">
-                    <button class="btn-primary" onclick="showModal()">Daftar Supplier</button>
-                    <button class="btn-secondary">Cari Bahan Baku</button>
+                    <button class="btn-primary" onclick="showModal('register')"><i class="fas fa-user-plus"></i> Daftar Supplier/Industri</button>
+                    <button class="btn-secondary" onclick="document.getElementById('searchInput').focus()"><i class="fas fa-search"></i> Cari Bahan Baku</button>
                 </div>
             </div>
             <div class="hero-stats">
-                <div><span>10K+</span> Supplier</div>
-                <div><span>50K+</span> Transaksi</div>
-                <div><span>100+</span> Kategori</div>
+                <div><span>10K+</span> Supplier Terpercaya</div>
+                <div><span>50K+</span> Transaksi Sukses</div>
+                <div><span>100+</span> Kategori Bahan</div>
             </div>
         </section>
         <section id="program" class="section animate">
-            <h2>Program Pemerintah Unggulan</h2>
-            <div class="cards">
+            <h2>Program Pemerintah Unggulan (Link & Match)</h2>
+            <div class="cards-grid"> <!-- Grid mirip Blibli cards -->
                 <div class="card">
-                    <i class="fas fa-handshake"></i>
-                    <h3>Kemitraan IKM</h3>
-                    <p>Program rantai pasok otomotif.</p>
+                    <i class="fas fa-map-marked-alt"></i>
+                    <h3>F. Mapping Tier 1 & Kebutuhan Part</h3>
+                    <p>Koordinasi data APM, mapping potensi Tier-1, studi kelayakan, forum link & match, penandatanganan MoU.</p>
                 </div>
                 <div class="card">
-                    <i class="fas fa-tags"></i>
-                    <h3>Subsidi Lokal</h3>
-                    <p>Bahan baku berkualitas harga terjangkau.</p>
+                    <i class="fas fa-link"></i>
+                    <h3>G. Implementasi Link & Match</h3>
+                    <p>4 Milestones: Kunjungan Gemba, Prototype Approval, Trial Production, PO Pertama & Mass Production.</p>
                 </div>
                 <div class="card">
-                    <i class="fas fa-graduation-cap"></i>
-                    <h3>Pelatihan</h3>
-                    <p>Sertifikasi supplier terpercaya.</p>
+                    <i class="fas fa-chart-line"></i>
+                    <h3>H. Monitoring & Evaluasi</h3>
+                    <p>5 Phases: Pasca MoU hingga Repeat Order Stabil, fokus QCD, Kaizen, & scale-up.</p>
                 </div>
             </div>
         </section>
         <section id="kategori" class="section">
-            <h2>Kategori Bahan Baku Populer</h2>
-            <div class="categories-grid">
+            <h2>Katalog Bahan Baku Populer</h2>
+            <div class="categories-grid" id="categoriesGrid">
                 <div class="cat-card" data-cat="Aluminium">
                     <i class="fas fa-cubes"></i>
                     <span>Aluminium</span>
+                    <p>10+ Supplier</p>
                 </div>
                 <div class="cat-card" data-cat="Kuningan">
                     <i class="fas fa-coins"></i>
                     <span>Kuningan</span>
+                    <p>15+ Supplier</p>
                 </div>
                 <div class="cat-card" data-cat="Kapas">
                     <i class="fas fa-seedling"></i>
                     <span>Kapas</span>
+                    <p>8+ Supplier</p>
                 </div>
                 <div class="cat-card" data-cat="Baja">
                     <i class="fas fa-hard-hat"></i>
                     <span>Baja</span>
+                    <p>20+ Supplier</p>
                 </div>
                 <div class="cat-card" data-cat="Plastik">
                     <i class="fas fa-recycle"></i>
                     <span>Plastik</span>
+                    <p>12+ Supplier</p>
                 </div>
             </div>
         </section>
         <section id="supplier" class="section alternate-bg">
             <h2>Supplier Terpercaya</h2>
-            <p>Temukan supplier verified oleh pemerintah.</p>
-            <!-- Tambah list atau grid supplier -->
+            <p>Temukan supplier verified oleh pemerintah. Mirip katalog Blibli dengan filter & detail produk.</p>
+            <div class="supplier-grid">
+                <!-- Dynamic load via JS jika perlu -->
+                <div class="supplier-card">PT. Baja Mandiri <i class="fas fa-check-circle"></i></div>
+                <div class="supplier-card">CV. Plastik Lokal <i class="fas fa-check-circle"></i></div>
+            </div>
+        </section>
+        <section id="dashboard" class="section" style="display:none;">
+            <div class="dashboard-content">
+                <h2>Dashboard Pribadi</h2>
+                <div id="userInfo"></div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <i class="fas fa-shopping-cart"></i>
+                        Pesanan Aktif: <span id="orders">0</span>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-box"></i>
+                        Produk Tersedia: <span id="products">0</span>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-chart-bar"></i>
+                        <canvas id="activityChart" width="200" height="100"></canvas>
+                    </div>
+                </div>
+                <button class="btn-primary" onclick="editProfile()">Edit Profil</button>
+            </div>
         </section>
     </main>
     <footer>
-        <p>&copy; 2025 MatCen. Diawasi Kementerian Perindustrian RI. <a href="#">Privacy</a></p>
+        <p>&copy; 2025 MatCen. Diawasi Kementerian Perindustrian RI. <a href="#">Privacy</a> | <a href="#">Syarat & Ketentuan</a></p>
     </footer>
+
+    <!-- Modal Login/Register -->
     <div id="modal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal()">&times;</span>
-            <h3>Masuk / Daftar</h3>
-            <form>
-                <input type="text" placeholder="Username atau Email">
-                <input type="password" placeholder="Password">
+            <h3>Masuk / Daftar Akun</h3>
+            <div class="tab-buttons">
+                <button class="tab-btn active" onclick="switchTab('login')">Login</button>
+                <button class="tab-btn" onclick="switchTab('register')">Daftar</button>
+            </div>
+            <form id="loginForm">
+                <input type="email" id="loginEmail" placeholder="Email" required>
+                <input type="password" id="loginPass" placeholder="Password" required>
                 <button type="submit">Masuk</button>
-                <a href="#">Buat Akun Baru</a>
+            </form>
+            <form id="registerForm" style="display:none;">
+                <input type="text" id="regName" placeholder="Nama Lengkap" required>
+                <input type="email" id="regEmail" placeholder="Email" required>
+                <input type="password" id="regPass" placeholder="Password" required>
+                <select id="regRole">
+                    <option value="supplier">Supplier</option>
+                    <option value="industri">Industri</option>
+                </select>
+                <button type="submit">Daftar</button>
             </form>
         </div>
     </div>
+
     <script src="script.js"></script>
-    <!-- Tambah di <head> setelah script.js: -->
-<!-- Tidak ada perubahan besar di HTML, hanya tambah di modal dan navbar -->
-
-<!-- Navbar update: -->
-<div class="nav-user" id="navUser" style="display:none;">
-    <span id="userName"></span>
-    <button onclick="logout()">Logout</button>
-</div>
-<!-- Ganti tombol Masuk jadi: -->
-<li id="navLogin"><a href="#" onclick="showModal('login')">Masuk</a></li>
-
-<!-- Modal update: -->
-<div id="modal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeModal()">&times;</span>
-        <div class="tab-buttons">
-            <button class="tab-btn active" onclick="switchTab('login')">Login</button>
-            <button class="tab-btn" onclick="switchTab('register')">Daftar</button>
-        </div>
-        <form id="loginForm">
-            <input type="email" id="loginEmail" placeholder="Email" required>
-            <input type="password" id="loginPass" placeholder="Password" required>
-            <button type="submit">Masuk</button>
-        </form>
-        <form id="registerForm" style="display:none;">
-            <input type="text" id="regName" placeholder="Nama Lengkap" required>
-            <input type="email" id="regEmail" placeholder="Email" required>
-            <input type="password" id="regPass" placeholder="Password" required>
-            <select id="regRole">
-                <option value="supplier">Supplier</option>
-                <option value="industri">Industri</option>
-            </select>
-            <button type="submit">Daftar</button>
-        </form>
-    </div>
-</div>
-
-<!-- Tambah section dashboard setelah #supplier: -->
-<section id="dashboard" class="section" style="display:none;">
-    <h2>Dashboard Pribadi</h2>
-    <div class="dashboard-content">
-        <div id="userInfo"></div>
-        <div class="stats-grid">
-            <div class="stat-card">Pesanan Aktif: <span id="orders">0</span></div>
-            <div class="stat-card">Produk Tersedia: <span id="products">0</span></div>
-        </div>
-        <button onclick="editProfile()">Edit Profil</button>
-    </div>
-</section>
-
 </body>
 </html>
