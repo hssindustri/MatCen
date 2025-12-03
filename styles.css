@@ -9,3 +9,14 @@
 .stat-card { background: white; padding: 2rem; border-radius: 15px; text-align: center; box-shadow: 0 5px 20px rgba(0,0,0,0.05); font-size: 1.2rem; }
 .stat-card span { color: #007bff; font-weight: 700; font-size: 2rem; }
 @media (max-width: 768px) { .tab-buttons { flex-direction: column; } }
+.tab-buttons { display: flex; margin-bottom: 1.5rem; }
+.tab-btn { flex: 1; padding: 1rem; background: #f8f9fa; border: none; cursor: pointer; transition: all 0.3s; border-radius: 10px 10px 0 0; }
+.tab-btn.active { background: #007bff; color: white; }
+#registerForm select { width: 100%; padding: 1rem; margin-bottom: 1.5rem; border: 2px solid #e9ecef; border-radius: 10px; }
+.nav-user { display: flex; align-items: center; gap: 1rem; background: #007bff; padding: 0.5rem 1rem; border-radius: 25px; color: white; }
+#dashboard { background: linear-gradient(135deg, #f0f8ff 0%, white 100%); border-radius: 20px; margin: 2rem auto; box-shadow: 0 10px 40px rgba(0,123,255,0.1); }
+.dashboard-content { max-width: 1000px; margin: auto; }
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 2rem 0; }
+.stat-card { background: white; padding: 2rem; border-radius: 15px; text-align: center; box-shadow: 0 5px 20px rgba(0,0,0,0.05); font-size: 1.2rem; }
+.stat-card span { color: #007bff; font-weight: 700; font-size: 2rem; }
+@media (max-width: 768px) { .tab-buttons { flex-direction: column; } }
