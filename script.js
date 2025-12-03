@@ -5,18 +5,29 @@ function closeModal() {
     document.getElementById('modal').style.display = 'none';
 }
 window.onclick = function(event) {
-    const modal = document.getElementById('modal');
-    if (event.target == modal) closeModal();
+    if (event.target.classList.contains('modal')) closeModal();
 }
 document.querySelector('form').addEventListener('submit', function(e) {
     e.preventDefault();
-    alert('Form dikirim! (Integrasikan dengan backend nanti)');
+    alert('Login berhasil! (Simulasi; tambah backend).');
     closeModal();
 });
-// Smooth scroll untuk nav links
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function(e) {
-        e.preventDefault();
-        document.querySelector(this.getAttribute('href')).scrollIntoView({ behavior: 'smooth' });
+// Observer untuk animasi on-scroll
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('animate');
+        }
     });
+});
+document.querySelectorAll('.section').forEach(el => observer.observe(el));
+// Parallax hero effect
+window.addEventListener('scroll', () => {
+    const scrolled = window.pageYOffset;
+    document.querySelector('.hero').style.transform = `translateY(${scrolled * 0.5}px)`;
+});
+// Search functionality (simulasi)
+document.querySelector('.search-bar button').addEventListener('click', () => {
+    const query = document.querySelector('.search-bar input').value;
+    if (query) alert(`Mencari: ${query} (Integrasikan dengan filter kategori).`);
 });
