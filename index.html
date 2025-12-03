@@ -1,47 +1,49 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MatCen - Material Center</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-</head>
-<body>
-    <header>
-        <nav class="navbar">
-            <div class="nav-brand">
-                <i class="fas fa-industry"></i> MatCen
-            </div>
-            <div class="search-bar">
-                <input type="text" placeholder="Cari bahan baku...">
-                <button><i class="fas fa-search"></i></button>
-            </div>
-            <ul class="nav-menu">
-                <li><a href="#program"><i class="fas fa-gavel"></i> Program</a></li>
-                <li><a href="#kategori"><i class="fas fa-boxes"></i> Kategori</a></li>
-                <li><a href="#supplier">Supplier</a></li>
-                <li><a href="#industri">Industri</a></li>
-                <li><button class="btn-login" onclick="showModal()">Masuk</button></li>
-            </ul>
-        </nav>
-    </header>
-    <main>
-        <section class="hero">
-            <div class="hero-content">
-                <h1>Material Center Indonesia</h1>
-                <p>Hubungkan Supplier Bahan Baku dengan Industri Dalam Negeri. Diawasi Pemerintah untuk Kemitraan Optimal.</p>
-                <div class="hero-buttons">
-                    <button class="btn-primary" onclick="showModal()">Daftar Supplier</button>
-                    <button class="btn-secondary">Cari Bahan Baku</button>
-                </div>
-            </div>
-            <div class="hero-stats">
-                <div><span>10K+</span> Supplier</div>
-                <div><span>50K+</span> Transaksi</div>
-                <div><span>100+</span> Kategori</div>
-            </div>
-        </section>
-        <section id="program" class="section animate">
-            <h2>Program Pemerintah Ung
+<!-- Tambah di <head> setelah script.js: -->
+<!-- Tidak ada perubahan besar di HTML, hanya tambah di modal dan navbar -->
+
+<!-- Navbar update: -->
+<div class="nav-user" id="navUser" style="display:none;">
+    <span id="userName"></span>
+    <button onclick="logout()">Logout</button>
+</div>
+<!-- Ganti tombol Masuk jadi: -->
+<li id="navLogin"><a href="#" onclick="showModal('login')">Masuk</a></li>
+
+<!-- Modal update: -->
+<div id="modal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <div class="tab-buttons">
+            <button class="tab-btn active" onclick="switchTab('login')">Login</button>
+            <button class="tab-btn" onclick="switchTab('register')">Daftar</button>
+        </div>
+        <form id="loginForm">
+            <input type="email" id="loginEmail" placeholder="Email" required>
+            <input type="password" id="loginPass" placeholder="Password" required>
+            <button type="submit">Masuk</button>
+        </form>
+        <form id="registerForm" style="display:none;">
+            <input type="text" id="regName" placeholder="Nama Lengkap" required>
+            <input type="email" id="regEmail" placeholder="Email" required>
+            <input type="password" id="regPass" placeholder="Password" required>
+            <select id="regRole">
+                <option value="supplier">Supplier</option>
+                <option value="industri">Industri</option>
+            </select>
+            <button type="submit">Daftar</button>
+        </form>
+    </div>
+</div>
+
+<!-- Tambah section dashboard setelah #supplier: -->
+<section id="dashboard" class="section" style="display:none;">
+    <h2>Dashboard Pribadi</h2>
+    <div class="dashboard-content">
+        <div id="userInfo"></div>
+        <div class="stats-grid">
+            <div class="stat-card">Pesanan Aktif: <span id="orders">0</span></div>
+            <div class="stat-card">Produk Tersedia: <span id="products">0</span></div>
+        </div>
+        <button onclick="editProfile()">Edit Profil</button>
+    </div>
+</section>
