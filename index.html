@@ -1,4 +1,116 @@
-<!-- Tambah di <head> setelah script.js: -->
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MatCen - Material Center</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="nav-brand">
+                <i class="fas fa-industry"></i> MatCen
+            </div>
+            <div class="search-bar">
+                <input type="text" placeholder="Cari bahan baku...">
+                <button><i class="fas fa-search"></i></button>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="#program"><i class="fas fa-gavel"></i> Program</a></li>
+                <li><a href="#kategori"><i class="fas fa-boxes"></i> Kategori</a></li>
+                <li><a href="#supplier">Supplier</a></li>
+                <li><a href="#industri">Industri</a></li>
+                <li><button class="btn-login" onclick="showModal()">Masuk</button></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <section class="hero">
+            <div class="hero-content">
+                <h1>Material Center Indonesia</h1>
+                <p>Hubungkan Supplier Bahan Baku dengan Industri Dalam Negeri. Diawasi Pemerintah untuk Kemitraan Optimal.</p>
+                <div class="hero-buttons">
+                    <button class="btn-primary" onclick="showModal()">Daftar Supplier</button>
+                    <button class="btn-secondary">Cari Bahan Baku</button>
+                </div>
+            </div>
+            <div class="hero-stats">
+                <div><span>10K+</span> Supplier</div>
+                <div><span>50K+</span> Transaksi</div>
+                <div><span>100+</span> Kategori</div>
+            </div>
+        </section>
+        <section id="program" class="section animate">
+            <h2>Program Pemerintah Unggulan</h2>
+            <div class="cards">
+                <div class="card">
+                    <i class="fas fa-handshake"></i>
+                    <h3>Kemitraan IKM</h3>
+                    <p>Program rantai pasok otomotif.</p>
+                </div>
+                <div class="card">
+                    <i class="fas fa-tags"></i>
+                    <h3>Subsidi Lokal</h3>
+                    <p>Bahan baku berkualitas harga terjangkau.</p>
+                </div>
+                <div class="card">
+                    <i class="fas fa-graduation-cap"></i>
+                    <h3>Pelatihan</h3>
+                    <p>Sertifikasi supplier terpercaya.</p>
+                </div>
+            </div>
+        </section>
+        <section id="kategori" class="section">
+            <h2>Kategori Bahan Baku Populer</h2>
+            <div class="categories-grid">
+                <div class="cat-card" data-cat="Aluminium">
+                    <i class="fas fa-cubes"></i>
+                    <span>Aluminium</span>
+                </div>
+                <div class="cat-card" data-cat="Kuningan">
+                    <i class="fas fa-coins"></i>
+                    <span>Kuningan</span>
+                </div>
+                <div class="cat-card" data-cat="Kapas">
+                    <i class="fas fa-seedling"></i>
+                    <span>Kapas</span>
+                </div>
+                <div class="cat-card" data-cat="Baja">
+                    <i class="fas fa-hard-hat"></i>
+                    <span>Baja</span>
+                </div>
+                <div class="cat-card" data-cat="Plastik">
+                    <i class="fas fa-recycle"></i>
+                    <span>Plastik</span>
+                </div>
+            </div>
+        </section>
+        <section id="supplier" class="section alternate-bg">
+            <h2>Supplier Terpercaya</h2>
+            <p>Temukan supplier verified oleh pemerintah.</p>
+            <!-- Tambah list atau grid supplier -->
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2025 MatCen. Diawasi Kementerian Perindustrian RI. <a href="#">Privacy</a></p>
+    </footer>
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h3>Masuk / Daftar</h3>
+            <form>
+                <input type="text" placeholder="Username atau Email">
+                <input type="password" placeholder="Password">
+                <button type="submit">Masuk</button>
+                <a href="#">Buat Akun Baru</a>
+            </form>
+        </div>
+    </div>
+    <script src="script.js"></script>
+    <!-- Tambah di <head> setelah script.js: -->
 <!-- Tidak ada perubahan besar di HTML, hanya tambah di modal dan navbar -->
 
 <!-- Navbar update: -->
@@ -47,3 +159,6 @@
         <button onclick="editProfile()">Edit Profil</button>
     </div>
 </section>
+
+</body>
+</html>
