@@ -5,58 +5,43 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MatCen - Material Center</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <header>
         <nav class="navbar">
-            <div class="nav-brand">MatCen</div>
+            <div class="nav-brand">
+                <i class="fas fa-industry"></i> MatCen
+            </div>
+            <div class="search-bar">
+                <input type="text" placeholder="Cari bahan baku...">
+                <button><i class="fas fa-search"></i></button>
+            </div>
             <ul class="nav-menu">
-                <li><a href="#program">Program Pemerintah</a></li>
-                <li><a href="#kategori">Kategori Bahan Baku</a></li>
+                <li><a href="#program"><i class="fas fa-gavel"></i> Program</a></li>
+                <li><a href="#kategori"><i class="fas fa-boxes"></i> Kategori</a></li>
                 <li><a href="#supplier">Supplier</a></li>
                 <li><a href="#industri">Industri</a></li>
+                <li><button class="btn-login" onclick="showModal()">Masuk</button></li>
             </ul>
         </nav>
     </header>
     <main>
         <section class="hero">
-            <h1>Material Center</h1>
-            <p>Penghubung Supplier Bahan Baku dengan Pelaku Industri Dalam Negeri, Diawasi Pemerintah</p>
-            <button onclick="showModal()">Mulai Daftar</button>
-        </section>
-        <section id="program" class="section">
-            <h2>Informasi Program Pemerintah</h2>
-            <div class="cards">
-                <div class="card">Program Kemitraan IKM Otomotif</div>
-                <div class="card">Subsidi Bahan Baku Lokal</div>
-                <div class="card">Pelatihan Supplier</div>
+            <div class="hero-content">
+                <h1>Material Center Indonesia</h1>
+                <p>Hubungkan Supplier Bahan Baku dengan Industri Dalam Negeri. Diawasi Pemerintah untuk Kemitraan Optimal.</p>
+                <div class="hero-buttons">
+                    <button class="btn-primary" onclick="showModal()">Daftar Supplier</button>
+                    <button class="btn-secondary">Cari Bahan Baku</button>
+                </div>
+            </div>
+            <div class="hero-stats">
+                <div><span>10K+</span> Supplier</div>
+                <div><span>50K+</span> Transaksi</div>
+                <div><span>100+</span> Kategori</div>
             </div>
         </section>
-        <section id="kategori" class="section">
-            <h2>Kategori Bahan Baku</h2>
-            <ul class="categories">
-                <li>Aluminium</li>
-                <li>Kuningan</li>
-                <li>Kapas</li>
-                <li>Baja</li>
-                <li>Plastik</li>
-            </ul>
-        </section>
-    </main>
-    <footer>
-        <p>&copy; 2025 MatCen. Diawasi Kementerian Perindustrian.</p>
-    </footer>
-    <div id="modal" class="modal">
-        <div class="modal-content">
-            <span onclick="closeModal()" class="close">&times;</span>
-            <h3>Daftar Sekarang</h3>
-            <form>
-                <input type="text" placeholder="Nama">
-                <input type="email" placeholder="Email">
-                <button type="submit">Kirim</button>
-            </form>
-        </div>
-    </div>
-    <script src="script.js"></script>
-</body>
-</html>
+        <section id="program" class="section animate">
+            <h2>Program Pemerintah Ung
