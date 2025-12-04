@@ -80,59 +80,50 @@ document.getElementById('registerForm').addEventListener('submit', function(e) {
         });
 });
 
-// Login
-document.getElementById('loginForm').addEventListener('submit', (e) => {
+// ========== LOGIN PAKAI FIREBASE ==========
+document.getElementById('loginForm').addEventListener('submit', function(e) {
     e.preventDefault();
-    const email = document.getElementById('loginEmail').value.trim();
-    const pass = document.getElementById('loginPass').value;
 
-    const user = users.find(u => u.email === email && u.pass === pass);
-    if (user) {
-        currentUser = user;
-        localStorage.setItem('currentUser', JSON.stringify(user));
-        loginSuccess();
-    } else {
-        alert('Email/password salah!');
-    }
+    const email = document.getElementById('loginEmail').value.trim();
+    const pass  = document.getElementById('loginPass').value;
+
+    auth.signInWithEmailAndPassword(email, pass)
+        .then((userCredential) => {
+            // Login berhasil, ambil data dari Firestore
+            const uid = userCredential.user.uid;
+            return db.collection('users').doc(uid).get();
+        })
+        .then((doc) => {
+            if (doc.exists) {
+                currentUser = { uid: doc.id, ...doc.data() };
+                loginSuccess();
+                document.getElementById('loginForm').reset();
+                closeModal();
+            } else {
+                alert('Data profil tidak ditemukan!');
+            }
+        })
+        .catch((error) => {
+            console.error("Error login:", error);
+            if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+                alert('Email atau password salah!');
+            } else if (error.code === 'auth/invalid-email') {
+                alert('Format email salah!');
+            } else {
+                alert('Gagal login: ' + error.message);
+            }
+        });
 });
 
-function loginSuccess() {
-    closeModal();
-    document.getElementById('navLogin').style.display = 'none';
-    document.getElementById('navUser').style.display = 'flex';
-    document.getElementById('userName').textContent = currentUser.name;
-    document.getElementById('dashboard').style.display = 'block';
-    document.getElementById('userInfo').innerHTML = `
-        <h3>Selamat datang, ${currentUser.name} (${currentUser.role})</h3>
-        <p>Email: ${currentUser.email} | Bergabung: ${new Date(currentUser.joined).toLocaleDateString('id-ID')}</p>
-        <p><em>Mode: ${currentUser.role === 'supplier' ? 'Kelola katalog bahan baku' : 'Cari & pesan material'}</em></p>
-    `;
-    document.getElementById('orders').textContent = currentUser.orders;
-    document.getElementById('products').textContent = currentUser.products;
-
-    // Role-based dashboard enhancement
-    if (currentUser.role === 'supplier') {
-        document.getElementById('userInfo').innerHTML += '<p><button onclick="addProduct()">Tambah Produk</button></p>';
-    }
-
-    // Simple chart untuk activity (mirip Blibli analytics)
-    const ctx = document.getElementById('activityChart').getContext('2d');
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: ['Jan', 'Feb', 'Mar', 'Apr'],
-            datasets: [{ label: 'Aktivitas', data: [10, 20, 15, 25], borderColor: '#F15A24', tension: 0.1 }]
-        },
-        options: { scales: { y: { beginAtZero: true } }, plugins: { legend: { display: false } } }
-    });
-}
-
 function logout() {
-    currentUser = null;
-    localStorage.removeItem('currentUser');
-    document.getElementById('navLogin').style.display = 'block';
-    document.getElementById('navUser').style.display = 'none';
-    document.getElementById('dashboard').style.display = 'none';
+    auth.signOut().then(() => {
+        currentUser = null;
+        document.getElementById('navLogin').style.display = 'block';
+        document.getElementById('navUser').style.display = 'none';
+        document.getElementById('dashboard').style.display = 'none';
+    }).catch((error) => {
+        alert('Gagal logout: ' + error.message);
+    });
 }
 
 // Tambah functions baru
@@ -179,28 +170,25 @@ document.getElementById('searchInput').addEventListener('keypress', (e) => {
     if (e.key === 'Enter') searchMaterials();
 });
 
-// Init on load
-window.addEventListener('load', () => {
-    currentUser = JSON.parse(localStorage.getItem('currentUser'));
-    if (currentUser) loginSuccess();
-    // Inisialisasi search listener
-    document.getElementById('searchInput').addEventListener('input', searchMaterials);
-});
-document.addEventListener('DOMContentLoaded', function() {
-    // Tombol Daftar di hero
-    const btnRegister = document.getElementById('btnRegister');
-    if (btnRegister) {
-        btnRegister.addEventListener('click', () => showModal('register'));
-    }
-    const linkLogin = document.getElementById('linkLogin');
-    if (linkLogin) {
-        linkLogin.addEventListener('click', (e) => {
-            e.preventDefault();
-            showModal('login');
-        });
+// Auto-login kalau sudah pernah login sebelumnya
+auth.onAuthStateChanged((user) => {
+    if (user) {
+        db.collection('users').doc(user.uid).get()
+            .then((doc) => {
+                if (doc.exists) {
+                    currentUser = { uid: doc.id, ...doc.data() };
+                    loginSuccess();
+                }
+            });
+    } else {
+        // tidak ada user yang login
+        document.getElementById('navLogin').style.display = 'block';
+        document.getElementById('navUser').style.display = 'none';
+        document.getElementById('dashboard').style.display = 'none';
     }
 });
 </script>
+
 
 
 
