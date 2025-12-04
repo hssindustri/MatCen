@@ -25,7 +25,7 @@
                 <li><a href="#kategori"><i class="fas fa-boxes"></i> Katalog</a></li>
                 <li><a href="#supplier"><i class="fas fa-users"></i> Supplier</a></li>
                 <li><a href="#industri"><i class="fas fa-building"></i> Industri</a></li>
-                <li id="navLogin"><a href="#" onclick="showModal('login')"><i class="fas fa-sign-in-alt"></i> Masuk</a></li>
+                <li id="navLogin"><a href="#" id="btnRegister"><i class="fas fa-sign-in-alt"></i> Masuk</a></li>
                 <li id="navUser" class="nav-user" style="display:none;">
                     <span id="userName"></span>
                     <button onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
@@ -39,7 +39,7 @@
                 <h1>Material Center Indonesia</h1>
                 <p>Hubungkan Supplier Bahan Baku dengan Industri Dalam Negeri. Program Link & Match Otomotif – Diawasi Kementerian Perindustrian.</p>
                 <div class="hero-buttons">
-                    <button class="btn-primary" onclick="showModal('register')"><i class="fas fa-user-plus"></i> Daftar Supplier/Industri</button>
+                    <button class="btn-primary" id="btnRegister"><i class="fas fa-user-plus"></i> Daftar Supplier/Industri</button>
                     <button class="btn-secondary" onclick="document.getElementById('searchInput').focus()"><i class="fas fa-search"></i> Cari Bahan Baku</button>
                 </div>
             </div>
@@ -177,5 +177,6 @@ const db = firebase.firestore();
     <script src="script.js"></script>
 </body>
 </html>
+
 
 
