@@ -13,23 +13,16 @@ function closeModal() {
 function switchTab(tab) {
     const loginForm = document.getElementById('loginForm');
     const registerForm = document.getElementById('registerForm');
-    const btns = document.querySelectorAll('.tab-btn');
 
-    // Hapus class active dari semua tombol
-    btns.forEach(btn => btn.classList.remove('active'));
+    loginForm.style.display = tab === 'login' ? 'block' : 'none';
+    registerForm.style.display = tab === 'login' ? 'none' : 'block';
 
-    // Tambahkan class active ke tombol yang diklik
-    // (cara paling aman tanpa pakai event.target langsung)
-    document.querySelector(`.tab-btn[onclick="switchTab('${tab}')"]`).classList.add('active');
-
-    // Tampilkan form yang sesuai
-    if (tab === 'login') {
-        loginForm.style.display = 'block';
-        registerForm.style.display = 'none';
-    } else {
-        loginForm.style.display = 'none';
-        registerForm.style.display = 'block';
-    }
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.innerText.includes(tab === 'login' ? 'Login' : 'Daftar')) {
+            btn.classList.add('active');
+        }
+    });
 }
 
 // ========== DAFTAR PAKAI FIREBASE (INI YANG BARU) ==========
@@ -182,6 +175,7 @@ auth.onAuthStateChanged((user) => {
     }
 });
 </script>
+
 
 
 
