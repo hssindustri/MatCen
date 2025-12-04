@@ -176,4 +176,20 @@ window.addEventListener('load', () => {
     // Inisialisasi search listener
     document.getElementById('searchInput').addEventListener('input', searchMaterials);
 });
+document.addEventListener('DOMContentLoaded', function() {
+    // Tombol Daftar di hero
+    const btnRegister = document.getElementById('btnRegister');
+    if (btnRegister) {
+        btnRegister.addEventListener('click', () => showModal('register'));
+    }
+    const linkLogin = document.getElementById('linkLogin');
+    if (linkLogin) {
+        linkLogin.addEventListener('click', (e) => {
+            e.preventDefault();
+            showModal('login');
+        });
+    }
+});
+</script>
+
 
