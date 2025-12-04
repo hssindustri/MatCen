@@ -38,36 +38,46 @@ function switchTab(tab) {
     }
 }
 
-// Register - Dengan validasi lebih baik
-document.getElementById('registerForm').addEventListener('submit', (e) => {
+// ========== DAFTAR PAKAI FIREBASE (INI YANG BARU) ==========
+document.getElementById('registerForm').addEventListener('submit', function(e) {
     e.preventDefault();
-    const name = document.getElementById('regName').value.trim();
+
+    const name  = document.getElementById('regName').value.trim();
     const email = document.getElementById('regEmail').value.trim();
-    const pass = document.getElementById('regPass').value;
-    const role = document.getElementById('regRole').value;
+    const pass  = document.getElementById('regPass').value;
+    const role  = document.getElementById('regRole').value;
 
-    if (!name || !email || !pass || pass.length < 6) {
-        alert('Mohon isi data dengan benar (password min 6 karakter)!');
-        return;
-    }
-    if (users.find(u => u.email === email)) {
-        alert('Email sudah terdaftar!');
+    if (pass.length < 6) {
+        alert('Password minimal 6 karakter!');
         return;
     }
 
-    const newUser = { 
-        name, 
-        email, 
-        pass, 
-        role, 
-        orders: 0, 
-        products: Math.floor(Math.random() * 50) + 10,
-        joined: new Date().toISOString()
-    };
-    users.push(newUser);
-    localStorage.setItem('matcenUsers', JSON.stringify(users));
-    alert('Daftar berhasil! Silakan login.');
-    closeModal();
+    auth.createUserWithEmailAndPassword(email, pass)
+        .then((userCredential) => {
+            const user = userCredential.user;
+
+            // Simpan data tambahan ke Firestore
+            return db.collection('users').doc(user.uid).set({
+                name: name,
+                email: email,
+                role: role,
+                orders: 0,
+                products: Math.floor(Math.random() * 50) + 10,
+                joined: new Date()
+            });
+        })
+        .then(() => {
+            alert('Daftar berhasil! Silakan login.');
+            document.getElementById('registerForm').reset();
+            closeModal();
+        })
+        .catch((error) => {
+            console.error("Error daftar:", error);
+            if (error.code === 'auth/email-already-in-use') alert('Email sudah terdaftar!');
+            else if (error.code === 'auth/invalid-email') alert('Email tidak valid!');
+            else if (error.code === 'auth/weak-password') alert('Password terlalu lemah!');
+            else alert('Gagal daftar: ' + error.message);
+        });
 });
 
 // Login
@@ -191,5 +201,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
+
 
 
