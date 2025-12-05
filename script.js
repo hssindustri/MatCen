@@ -25,10 +25,9 @@ function switchTab(tab) {
     });
 }
 
-// ========== DAFTAR PAKAI FIREBASE (INI YANG BARU) ==========
+// ========== DAFTAR PAKAI FIREBASE ==========
 document.getElementById('registerForm').addEventListener('submit', function(e) {
     e.preventDefault();
-
     const name  = document.getElementById('regName').value.trim();
     const email = document.getElementById('regEmail').value.trim();
     const pass  = document.getElementById('regPass').value;
@@ -40,15 +39,9 @@ document.getElementById('registerForm').addEventListener('submit', function(e) {
     }
 
     auth.createUserWithEmailAndPassword(email, pass)
-        .then((userCredential) => {
-            const user = userCredential.user;
-
-            // Simpan data tambahan ke Firestore
-            return db.collection('users').doc(user.uid).set({
-                name: name,
-                email: email,
-                role: role,
-                orders: 0,
+        .then((cred) => {
+            return db.collection('users').doc(cred.user.uid).set({
+                name, email, role, orders: 0,
                 products: Math.floor(Math.random() * 50) + 10,
                 joined: new Date()
             });
@@ -58,127 +51,79 @@ document.getElementById('registerForm').addEventListener('submit', function(e) {
             document.getElementById('registerForm').reset();
             closeModal();
         })
-        .catch((error) => {
-            console.error("Error daftar:", error);
-            if (error.code === 'auth/email-already-in-use') alert('Email sudah terdaftar!');
-            else if (error.code === 'auth/invalid-email') alert('Email tidak valid!');
-            else if (error.code === 'auth/weak-password') alert('Password terlalu lemah!');
-            else alert('Gagal daftar: ' + error.message);
+        .catch(err => {
+            alert(err.message);
         });
 });
 
 // ========== LOGIN PAKAI FIREBASE ==========
 document.getElementById('loginForm').addEventListener('submit', function(e) {
     e.preventDefault();
-
     const email = document.getElementById('loginEmail').value.trim();
     const pass  = document.getElementById('loginPass').value;
 
     auth.signInWithEmailAndPassword(email, pass)
-        .then((userCredential) => {
-            // Login berhasil, ambil data dari Firestore
-            const uid = userCredential.user.uid;
-            return db.collection('users').doc(uid).get();
+        .then(cred => {
+            return db.collection('users').doc(cred.user.uid).get();
         })
-        .then((doc) => {
+        .then(doc => {
             if (doc.exists) {
                 currentUser = { uid: doc.id, ...doc.data() };
                 loginSuccess();
-                document.getElementById('loginForm').reset();
                 closeModal();
-            } else {
-                alert('Data profil tidak ditemukan!');
             }
         })
-        .catch((error) => {
-            console.error("Error login:", error);
-            if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-                alert('Email atau password salah!');
-            } else if (error.code === 'auth/invalid-email') {
-                alert('Format email salah!');
-            } else {
-                alert('Gagal login: ' + error.message);
-            }
-        });
+        .catch(err => alert(err.message));
 });
+
+function loginSuccess() {
+    document.getElementById('navLogin').style.display = 'none';
+    document.getElementById('navUser').style.display = 'block';
+    document.getElementById('userName').textContent = currentUser.name;
+    document.getElementById('userInfo').innerHTML = `
+        <p>Selamat datang, <strong>${currentUser.name}</strong>!</p>
+        <p>Role: ${currentUser.role}</p>
+        <p>Bergabung: ${new Date(currentUser.joined?.seconds*1000 || Date.now()).toLocaleDateString('id-ID')}</p>
+    `;
+    document.getElementById('orders').textContent = currentUser.orders || 0;
+    document.getElementById('products').textContent = currentUser.products || 0;
+    document.getElementById('dashboard').style.display = 'block';
+
+    // Chart sederhana
+    const ctx = document.getElementById('activityChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: { labels: ['Jan','Feb','Mar','Apr'], datasets: [{ label: 'Aktivitas', data: [10,20,15,30], borderColor: '#F15A24' }] },
+        options: { responsive: true, plugins: { legend: { display: false } } }
+    });
+}
 
 function logout() {
-    auth.signOut().then(() => {
-        currentUser = null;
-        document.getElementById('navLogin').style.display = 'block';
-        document.getElementById('navUser').style.display = 'none';
-        document.getElementById('dashboard').style.display = 'none';
-    }).catch((error) => {
-        alert('Gagal logout: ' + error.message);
-    });
+    auth.signOut();
 }
 
-// Tambah functions baru
+// Auto-login
+auth.onAuthStateChanged(user => {
+    if (user) {
+        db.collection('users').doc(user.uid).get().then(doc => {
+            if (doc.exists) {
+                currentUser = { uid: doc.id, ...doc.data() };
+                loginSuccess();
+            }
+        });
+    }
+});
+
+// Tombol Daftar & Login (fix ID)
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('btnRegisterHero')?.addEventListener('click', () => showModal('register'));
+    document.getElementById('linkLogin')?.addEventListener('click', e => { e.preventDefault(); showModal('login'); });
+});
+
+// Search
 function searchMaterials() {
     const query = document.getElementById('searchInput').value.toLowerCase();
-    const cards = document.querySelectorAll('.cat-card');
-    cards.forEach(card => {
-        const cat = card.dataset.cat.toLowerCase();
-        card.style.display = cat.includes(query) ? 'block' : 'none';
+    document.querySelectorAll('.cat-card').forEach(card => {
+        card.style.display = card.dataset.cat.toLowerCase().includes(query) ? 'block' : 'none';
     });
 }
-
-function editProfile() {
-    const newName = prompt('Nama baru:', currentUser.name);
-    if (newName) {
-        currentUser.name = newName;
-        localStorage.setItem('currentUser', JSON.stringify(currentUser));
-        loginSuccess(); // Refresh
-        alert('Profil diupdate!');
-    }
-}
-
-function addProduct() {
-    alert('Fitur tambah produk: Integrasikan dengan form upload (simulasi).');
-}
-
-// Smooth scroll & animations
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function(e) {
-        e.preventDefault();
-        document.querySelector(this.getAttribute('href')).scrollIntoView({ behavior: 'smooth' });
-    });
-});
-
-const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) entry.target.classList.add('visible');
-    });
-});
-document.querySelectorAll('.section').forEach(el => observer.observe(el));
-
-// Search on enter
-document.getElementById('searchInput').addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') searchMaterials();
-});
-
-// Auto-login kalau sudah pernah login sebelumnya
-auth.onAuthStateChanged((user) => {
-    if (user) {
-        db.collection('users').doc(user.uid).get()
-            .then((doc) => {
-                if (doc.exists) {
-                    currentUser = { uid: doc.id, ...doc.data() };
-                    loginSuccess();
-                }
-            });
-    } else {
-        // tidak ada user yang login
-        document.getElementById('navLogin').style.display = 'block';
-        document.getElementById('navUser').style.display = 'none';
-        document.getElementById('dashboard').style.display = 'none';
-    }
-});
-</script>
-
-
-
-
-
-
-
