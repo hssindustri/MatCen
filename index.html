@@ -25,7 +25,7 @@
                 <li><a href="#kategori"><i class="fas fa-boxes"></i> Katalog</a></li>
                 <li><a href="#supplier"><i class="fas fa-users"></i> Supplier</a></li>
                 <li><a href="#industri"><i class="fas fa-building"></i> Industri</a></li>
-                <li id="navLogin"><a href="#" id="linkLogin"><i class="fas fa-sign-in-alt"></i> Masuk</a></li>
+                <li id="navLogin" style="display: block;"><a href="#" id="linkLogin"><i class="fas fa-sign-in-alt"></i> Masuk</a></li>
                 <li id="navUser" class="nav-user" style="display:none;">
                     <span id="userName"></span>
                     <button onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
@@ -49,120 +49,247 @@
                 <div><span>100+</span> Kategori Bahan</div>
             </div>
         </section>
-        <section id="program" class="section animate">
-            <h2>Program Pemerintah Unggulan (Link & Match)</h2>
-            <div class="cards-grid">
-                <div class="card">
-                    <i class="fas fa-map-marked-alt"></i>
-                    <h3>F. Mapping Industri</h3>
-                    <p>Pemetaan supplier lokal untuk kebutuhan industri otomotif.</p>
-                </div>
-                <div class="card">
-                    <i class="fas fa-handshake"></i>
-                    <h3>Link & Match</h3>
-                    <p>Hubungkan kebutuhan industri dengan kemampuan supplier.</p>
-                </div>
-                <div class="card">
-                    <i class="fas fa-certificate"></i>
-                    <h3>Sertifikasi</h3>
-                    <p>Sertifikasi TKDN & standar internasional.</p>
-                </div>
+        
+        <!-- Form Login (Modal) -->
+        <div id="loginModal" class="modal" style="display:none;">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal('loginModal')">&times;</span>
+                <h2>Masuk</h2>
+                <input id="emailLogin" placeholder="Email" type="email">
+                <input id="passwordLogin" placeholder="Password" type="password">
+                <button onclick="loginAkun()">Login</button>
             </div>
-        </section>
-        <section id="kategori" class="section alternate-bg">
-            <h2>Kategori Bahan Baku</h2>
-            <p>Mirip kategori Blibli, dengan filter & search dinamis.</p>
-            <div class="cat-grid">
-                <div class="cat-card" data-cat="Metal"><i class="fas fa-wrench"></i> Metal <p>500+ Supplier</p></div>
-                <div class="cat-card" data-cat="Plastik"><i class="fas fa-cube"></i> Plastik <p>300+ Supplier</p></div>
-                <div class="cat-card" data-cat="Karet"><i class="fas fa-tire"></i> Karet <p>200+ Supplier</p></div>
-                <div class="cat-card" data-cat="Elektronik"><i class="fas fa-microchip"></i> Elektronik <p>150+ Supplier</p></div>
-            </div>
-        </section>
-        <section id="supplier" class="section alternate-bg">
-            <h2>Supplier Terpercaya</h2>
-            <p>Temukan supplier verified oleh pemerintah. Mirip katalog Blibli dengan filter & detail produk.</p>
-            <div class="supplier-grid">
-                <div class="supplier-card">PT. Baja Mandiri <i class="fas fa-check-circle"></i></div>
-                <div class="supplier-card">CV. Plastik Lokal <i class="fas fa-check-circle"></i></div>
-                <div class="supplier-card">UD. Karet Nusantara <i class="fas fa-check-circle"></i></div>
-            </div>
-        </section>
-        <section id="dashboard" class="section" style="display:none;">
-            <div class="dashboard-content">
-                <h2>Dashboard Pribadi</h2>
-                <div id="userInfo"></div>
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <i class="fas fa-shopping-cart"></i>
-                        Pesanan Aktif: <span id="orders">0</span>
-                    </div>
-                    <div class="stat-card">
-                        <i class="fas fa-box"></i>
-                        Produk Tersedia: <span id="products">0</span>
-                    </div>
-                    <div class="stat-card">
-                        <i class="fas fa-chart-bar"></i>
-                        <canvas id="activityChart" width="200" height="100"></canvas>
-                    </div>
-                </div>
-                <button class="btn-primary" onclick="editProfile()">Edit Profil</button>
-            </div>
-        </section>
-    </main>
-    <footer>
-        <p>&copy; 2025 MatCen. Diawasi Kementerian Perindustrian RI. <a href="#">Privacy</a> | <a href="#">Syarat & Ketentuan</a></p>
-    </footer>
-
-    <!-- Modal Login/Register -->
-    <div id="modal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal()">&times;</span>
-            <h3>Masuk / Daftar Akun</h3>
-            <div class="tab-buttons">
-                <button class="tab-btn active" onclick="switchTab('login')">Login</button>
-                <button class="tab-btn" onclick="switchTab('register')">Daftar</button>
-            </div>
-            <form id="loginForm">
-                <input type="email" id="loginEmail" placeholder="Email" required>
-                <input type="password" id="loginPass" placeholder="Password" required>
-                <button type="submit">Masuk</button>
-            </form>
-            <form id="registerForm" style="display:none;">
-                <input type="text" id="regName" placeholder="Nama Lengkap" required>
-                <input type="email" id="regEmail" placeholder="Email" required>
-                <input type="password" id="regPass" placeholder="Password" required>
-                <select id="regRole">
-                    <option value="supplier">Supplier</option>
-                    <option value="industri">Industri</option>
-                </select>
-                <button type="submit">Daftar</button>
-            </form>
         </div>
-    </div>
 
-    <!-- Firebase SDK (HANYA SATU!) -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.2/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.2/firebase-firestore-compat.js"></script>
+        <!-- Form Daftar (Modal) -->
+        <div id="registerModal" class="modal" style="display:none;">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal('registerModal')">&times;</span>
+                <h2>Daftar Akun</h2>
+                <select id="tipeAkun">
+                    <option value="">Pilih Tipe Akun</option>
+                    <option value="pembina">Pembina</option>
+                    <option value="industri">Industri</option>
+                    <option value="suplier">Suplier</option>
+                </select>
 
-    <!-- Inisialisasi Firebase (HANYA SATU!) -->
-    <script>
-      const firebaseConfig = {
-        apiKey: "AIzaSyDlsuZTlENpl1xT36w7mDBk6zWxO9ghbGI",
-        authDomain: "matcen-industri.firebaseapp.com",
-        projectId: "matcen-industri",
-        storageBucket: "matcen-industri.firebasestorage.app",
-        messagingSenderId: "46754979784",
-        appId: "1:46754979784:web:dda78109bb3ca33a78eafd"
-      };
+                <div id="formPembina" style="display:none;">
+                    <input id="namaPembina" placeholder="Nama" type="text">
+                    <input id="instansi" placeholder="Instansi (Satuan Kerja)" type="text">
+                    <input id="nip" placeholder="NIP/NIP PPPK" type="text">
+                    <input id="emailPembina" placeholder="Email" type="email">
+                    <input id="passwordPembina" placeholder="Password" type="password">
+                </div>
 
-      firebase.initializeApp(firebaseConfig);
-      const auth = firebase.auth();
-      const db = firebase.firestore();
+                <div id="formIndustri" style="display:none;">
+                    <input id="namaAdminIndustri" placeholder="Nama Admin" type="text">
+                    <input id="namaPerusahaanIndustri" placeholder="Nama Perusahaan" type="text">
+                    <input id="nibIndustri" placeholder="NIB" type="text">
+                    <input id="emailIndustri" placeholder="Email" type="email">
+                    <input id="passwordIndustri" placeholder="Password" type="password">
+                </div>
+
+                <div id="formSuplier" style="display:none;">
+                    <input id="namaAdminSuplier" placeholder="Nama Admin" type="text">
+                    <input id="namaPerusahaanSuplier" placeholder="Nama Perusahaan" type="text">
+                    <input id="nibSuplier" placeholder="NIB" type="text">
+                    <input id="emailSuplier" placeholder="Email" type="email">
+                    <input id="passwordSuplier" placeholder="Password" type="password">
+                </div>
+
+                <button onclick="daftarAkun()">Daftar</button>
+            </div>
+        </div>
+
+        <!-- Dashboard Admin (ditampilkan kalau login sebagai admin) -->
+        <section id="adminDashboard" style="display:none;">
+            <h2>Dashboard Admin</h2>
+            <h3>Pengajuan Akun Menunggu Verifikasi</h3>
+            <ul id="pendingList"></ul>
+        </section>
+
+        <!-- Section lain dari index.html asli (truncated, tambahkan sesuai asli) -->
+        <!-- ... -->
+
+        <!-- Tombol Tambah Supplier (contoh dari sebelumnya, adjust sesuai role) -->
+        <button onclick="tambahSupplier()" style="padding:10px; font-size:18px; margin:20px; display:none;" id="btnTambahSupplier">+ Tambah Supplier Baru</button>
+        <ul id="list" style="margin:20px; font-size:16px;"></ul>
+    </main>
+
+    <!-- Firebase SDK Modular -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, collection, getDocs, query, where, updateDoc, onSnapshot, orderBy, addDoc } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDlsuZTlENpl1xT36w7mDBk6zWxO9ghbGI",
+            authDomain: "matcen-industri.firebaseapp.com",
+            projectId: "matcen-industri",
+            storageBucket: "matcen-industri.firebasestorage.app",
+            messagingSenderId: "46754979784",
+            appId: "1:46754979784:web:dda78109bb3ca33a78eafd"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Fungsi Show/Close Modal
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = "block";
+        }
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = "none";
+        }
+
+        // Event Listener untuk tombol login dan register
+        document.getElementById('linkLogin').addEventListener('click', () => openModal('loginModal'));
+        document.getElementById('btnRegisterHero').addEventListener('click', () => openModal('registerModal'));
+
+        // Ganti form berdasarkan dropdown tipe akun
+        document.getElementById('tipeAkun').addEventListener('change', () => {
+            const tipe = document.getElementById('tipeAkun').value;
+            document.getElementById('formPembina').style.display = tipe === 'pembina' ? 'block' : 'none';
+            document.getElementById('formIndustri').style.display = tipe === 'industri' ? 'block' : 'none';
+            document.getElementById('formSuplier').style.display = tipe === 'suplier' ? 'block' : 'none';
+        });
+
+        // Fungsi Daftar Akun
+        window.daftarAkun = async () => {
+            const tipe = document.getElementById('tipeAkun').value;
+            let email, password, data = { tipe, status: 'pending', verified: false };
+
+            if (tipe === 'pembina') {
+                email = document.getElementById('emailPembina').value;
+                password = document.getElementById('passwordPembina').value;
+                data.nama = document.getElementById('namaPembina').value;
+                data.instansi = document.getElementById('instansi').value;
+                data.nip = document.getElementById('nip').value;
+            } else if (tipe === 'industri') {
+                email = document.getElementById('emailIndustri').value;
+                password = document.getElementById('passwordIndustri').value;
+                data.namaAdmin = document.getElementById('namaAdminIndustri').value;
+                data.namaPerusahaan = document.getElementById('namaPerusahaanIndustri').value;
+                data.nib = document.getElementById('nibIndustri').value;
+            } else if (tipe === 'suplier') {
+                email = document.getElementById('emailSuplier').value;
+                password = document.getElementById('passwordSuplier').value;
+                data.namaAdmin = document.getElementById('namaAdminSuplier').value;
+                data.namaPerusahaan = document.getElementById('namaPerusahaanSuplier').value;
+                data.nib = document.getElementById('nibSuplier').value;
+            } else {
+                alert('Pilih tipe akun!');
+                return;
+            }
+
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const uid = userCredential.user.uid;
+                await setDoc(doc(db, 'users', uid), data);
+                alert('Pendaftaran berhasil! Menunggu verifikasi.');
+                closeModal('registerModal');
+            } catch (e) {
+                alert('Error: ' + e.message);
+            }
+        };
+
+        // Fungsi Login
+        window.loginAkun = async () => {
+            const email = document.getElementById('emailLogin').value;
+            const password = document.getElementById('passwordLogin').value;
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                alert('Login berhasil!');
+                closeModal('loginModal');
+            } catch (e) {
+                alert('Error: ' + e.message);
+            }
+        };
+
+        // Fungsi Logout
+        window.logout = async () => {
+            await signOut(auth);
+            alert('Logout berhasil!');
+            document.getElementById('adminDashboard').style.display = 'none';
+            document.getElementById('btnTambahSupplier').style.display = 'none';
+            document.getElementById('navLogin').style.display = 'block';
+            document.getElementById('navUser').style.display = 'none';
+        };
+
+        // Monitor Auth State
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                document.getElementById('navLogin').style.display = 'none';
+                document.getElementById('navUser').style.display = 'block';
+                document.getElementById('userName').textContent = user.email;
+
+                const userDoc = await getDoc(doc(db, 'users', user.uid));
+                if (userDoc.exists()) {
+                    const data = userDoc.data();
+                    if (data.tipe === 'admin' && data.verified) {
+                        document.getElementById('adminDashboard').style.display = 'block';
+                        loadPending();
+                    } else if (data.verified) {
+                        // Tampilkan fitur sesuai role, misal tombol tambah supplier untuk suplier/industri
+                        document.getElementById('btnTambahSupplier').style.display = 'block';
+                    } else {
+                        alert('Akun Anda menunggu verifikasi.');
+                    }
+                }
+            } else {
+                document.getElementById('navLogin').style.display = 'block';
+                document.getElementById('navUser').style.display = 'none';
+            }
+        });
+
+        // Load Pending Akun untuk Admin
+        async function loadPending() {
+            const q = query(collection(db, 'users'), where('status', '==', 'pending'));
+            const querySnapshot = await getDocs(q);
+            const list = document.getElementById('pendingList');
+            list.innerHTML = '';
+            querySnapshot.forEach((docSnap) => {
+                const data = docSnap.data();
+                list.innerHTML += `<li>${data.email} - ${data.tipe} <button onclick="approve('${docSnap.id}', '${data.tipe}')">Approve</button></li>`;
+            });
+        }
+
+        // Fungsi Approve
+        window.approve = async (uid, tipe) => {
+            await updateDoc(doc(db, 'users', uid), { status: 'verified', verified: true });
+            alert('Akun disetujui!');
+            loadPending();
+        };
+
+        // Fungsi Tambah Supplier (contoh)
+        window.tambahSupplier = async () => {
+            const nama = prompt("Nama supplier:");
+            const kategori = prompt("Kategori (Metal/Plastik/dll):");
+            if (nama && kategori) {
+                await addDoc(collection(db, "suppliers"), {
+                    nama: nama,
+                    kategori: kategori,
+                    jumlah: 1,
+                    timestamp: new Date()
+                });
+                alert("Supplier berhasil ditambah!");
+            }
+        };
+
+        // Tampilkan daftar supplier real-time
+        const listSupplier = document.getElementById("list");
+        if (listSupplier) {
+            onSnapshot(query(collection(db, "suppliers"), orderBy("timestamp", "desc")), (snap) => {
+                listSupplier.innerHTML = "";
+                snap.forEach(d => {
+                    const data = d.data();
+                    listSupplier.innerHTML += `<li><strong>${data.nama}</strong> — ${data.kategori}</li>`;
+                });
+            });
+        }
     </script>
-
     <!-- Baru script.js -->
     <script src="script.js"></script>
-  </body>
+</body>
 </html>
