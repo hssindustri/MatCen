@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Untuk dashboard charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <header>
@@ -36,6 +36,7 @@
             </ul>
         </nav>
     </header>
+
     <main>
         <section class="hero">
             <div class="hero-content">
@@ -53,19 +54,17 @@
             </div>
         </section>
         
-        <!-- Form Login (Modal) -->
         <div id="loginModal" class="modal" style="display:none;">
             <div class="modal-content">
                 <span class="close" onclick="closeModal('loginModal')">&times;</span>
                 <h2>Masuk</h2>
                 <input id="emailLogin" placeholder="Email" type="email">
                 <input id="passwordLogin" placeholder="Password" type="password">
-                <button onclick="loginAkun()">Login</button>
+                <button onclick="loginAkun()" class="btn-primary" style="width: 100%; margin-top: 10px;">Login</button>
             </div>
         </div>
 
-        <!-- Form Daftar (Modal) -->
-      <div id="registerModal" class="modal" style="display:none;">
+        <div id="registerModal" class="modal" style="display:none;">
             <div class="modal-content">
                 <span class="close" onclick="closeModal('registerModal')">&times;</span>
                 <h2>Daftar Akun</h2>
@@ -95,28 +94,18 @@
             </div>
         </div>
 
-        <!-- Dashboard Admin (ditampilkan kalau login sebagai admin) -->
-       <section id="adminDashboard" class="section" style="display:none; background: #fff; border-top: 4px solid #F15A24; margin-top: 2rem; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+        <section id="adminDashboard" class="section" style="display:none; background: #fff; border-top: 4px solid #F15A24; margin-top: 2rem; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
             <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f0f0f0; padding-bottom: 1rem; margin-bottom: 1rem;">
-                <h2 style="color: #002D5B;"><i class="fas fa-user-shield"></i> Panel Verifikasi Pembina</h2>
+                <h2 style="color: #002D5B;"><i class="fas fa-user-shield"></i> Panel Verifikasi</h2>
                 <span class="gov-badge" style="font-size: 1rem;">Admin Area</span>
             </div>
-            <p style="margin-bottom: 1rem; color: #666;">Daftar akun IKM/Industri yang menunggu persetujuan Anda:</p>
-            
-            <ul id="pendingList" style="list-style: none; padding: 0;">
-                </ul>
+            <p style="margin-bottom: 1rem; color: #666;">Daftar akun yang menunggu persetujuan Anda:</p>
+            <ul id="pendingList" style="list-style: none; padding: 0;"></ul>
         </section>
 
-        <!-- Section lain dari index.html asli (truncated, tambahkan sesuai asli) -->
-        <!-- ... -->
-
-        <!-- Tombol Tambah Supplier (contoh dari sebelumnya, adjust sesuai role) -->
-        <button onclick="tambahSupplier()" style="padding:10px; font-size:18px; margin:20px; display:none;" id="btnTambahSupplier">+ Tambah Supplier Baru</button>
-        <ul id="list" style="margin:20px; font-size:16px;"></ul>
     </main>
 
-    <!-- Firebase SDK Modular -->
- <script type="module">
+    <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, collection, getDocs, query, where, updateDoc } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
@@ -134,24 +123,24 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // 2. Fungsi Kontrol Modal
+        // Mencegah error fungsi yang dipanggil dari HTML
+        window.searchMaterials = () => { alert("Fitur pencarian bahan baku sedang disiapkan!"); };
+
         window.openModal = (modalId) => { document.getElementById(modalId).style.display = "block"; };
         window.closeModal = (modalId) => { document.getElementById(modalId).style.display = "none"; };
 
         document.getElementById('linkLogin').addEventListener('click', () => openModal('loginModal'));
         document.getElementById('btnRegisterHero').addEventListener('click', () => openModal('registerModal'));
 
-        // 3. Logika Pilihan Tipe Akun Saat Daftar
         document.getElementById('tipeAkun').addEventListener('change', () => {
             const tipe = document.getElementById('tipeAkun').value;
             document.getElementById('formPembina').style.display = tipe === 'pembina' ? 'block' : 'none';
             document.getElementById('formIndustri').style.display = tipe === 'industri' ? 'block' : 'none';
         });
 
-        // 4. Fungsi Daftar Akun
         window.daftarAkun = async () => {
             const tipe = document.getElementById('tipeAkun').value;
-            let email, password, data = { tipe, status: 'pending', verified: false };
+            let email, password, data = { tipe: tipe, status: 'pending', verified: false };
 
             if (tipe === 'pembina') {
                 email = document.getElementById('emailPembina').value;
@@ -180,7 +169,6 @@
             }
         };
 
-        // 5. Fungsi Login
         window.loginAkun = async () => {
             const email = document.getElementById('emailLogin').value;
             const password = document.getElementById('passwordLogin').value;
@@ -193,7 +181,6 @@
             }
         };
 
-        // 6. Fungsi Logout
         window.logout = async () => {
             await signOut(auth);
             alert('Anda telah keluar.');
@@ -203,7 +190,6 @@
             document.getElementById('navUser').style.display = 'none';
         };
 
-        // 7. Fungsi Memuat Daftar IKM/Pembina yang Butuh Verifikasi
         window.loadPending = async () => {
             const listPending = document.getElementById("pendingList");
             listPending.innerHTML = "Memuat data..."; 
@@ -229,22 +215,23 @@
                     const data = docSnap.data();
                     const namaTampil = data.tipe === 'pembina' ? data.nama : data.namaPerusahaan;
                     const entitas = data.tipe === 'pembina' ? data.instansi : `NIB: ${data.nib}`;
-                    listPending.innerHTML += `
-                        <li style="background: white; margin-bottom: 10px; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center;">
-                            <div>
-                                <strong>${namaTampil}</strong> <span class="gov-badge">${data.tipe.toUpperCase()}</span><br>
-                                <small>${data.email} | ${entitas}</small>
-                            </div>
-                            <button class="btn-primary" style="padding: 8px 15px; font-size: 14px;" onclick="approve('${docSnap.id}')">Verifikasi Akun</button>
-                        </li>`;
+                    
+                    // Menggunakan string biasa agar lebih aman dari sintaks error
+                    listPending.innerHTML += 
+                        '<li style="background: white; margin-bottom: 10px; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center;">' +
+                            '<div>' +
+                                '<strong>' + (namaTampil || 'Tanpa Nama') + '</strong> <span class="gov-badge">' + (data.tipe ? data.tipe.toUpperCase() : '') + '</span><br>' +
+                                '<small>' + data.email + ' | ' + entitas + '</small>' +
+                            '</div>' +
+                            '<button class="btn-primary" style="padding: 8px 15px; font-size: 14px;" onclick="approve(\'' + docSnap.id + '\')">Verifikasi Akun</button>' +
+                        '</li>';
                 });
             } catch (error) {
                 console.error("Gagal memuat data verifikasi: ", error);
-                listPending.innerHTML = `<li>Gagal memuat data. Cek Console (F12) jika butuh pengaturan Index Firebase.</li>`;
+                listPending.innerHTML = "<li>Gagal memuat data. Jika Anda Pembina, cek Index Firebase.</li>";
             }
         };
 
-        // 8. Fungsi Eksekusi Tombol Verifikasi
         window.approve = async (uid) => {
             if(confirm('Apakah Anda yakin ingin menyetujui akun ini?')) {
                 try {
@@ -257,7 +244,6 @@
             }
         };
 
-        // 9. MONITORING STATUS USER
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 document.getElementById('navLogin').style.display = 'none';
@@ -269,14 +255,16 @@
                     const data = userDoc.data();
                     
                     if ((data.tipe === 'admin' || data.tipe === 'pembina') && data.verified === true) {
-                        
                         window.currentUserRole = data.tipe; 
-                        
                         document.getElementById('adminDashboard').style.display = 'block';
                         
                         const judulPanel = document.querySelector('#adminDashboard h2');
                         if (judulPanel) {
-                            judulPanel.innerHTML = `<i class="fas fa-user-shield"></i> ${data.tipe === 'admin' ? 'Panel Verifikasi Master (Admin)' : 'Panel Verifikasi IKM (Pembina)'}`;
+                            if(data.tipe === 'admin') {
+                                judulPanel.innerHTML = '<i class="fas fa-user-shield"></i> Panel Verifikasi Master (Admin)';
+                            } else {
+                                judulPanel.innerHTML = '<i class="fas fa-user-shield"></i> Panel Verifikasi IKM (Pembina)';
+                            }
                         }
                         
                         if(document.getElementById('navAdmin')) {
@@ -302,8 +290,5 @@
             }
         });
     </script>
-    
-    </body>
+</body>
 </html>
-
-
