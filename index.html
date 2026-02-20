@@ -62,42 +62,33 @@
         </div>
 
         <!-- Form Daftar (Modal) -->
-        <div id="registerModal" class="modal" style="display:none;">
+      <div id="registerModal" class="modal" style="display:none;">
             <div class="modal-content">
                 <span class="close" onclick="closeModal('registerModal')">&times;</span>
                 <h2>Daftar Akun</h2>
                 <select id="tipeAkun">
                     <option value="">Pilih Tipe Akun</option>
-                    <option value="pembina">Pembina</option>
-                    <option value="industri">Industri</option>
-                    <option value="suplier">Suplier</option>
+                    <option value="pembina">Fasilitator / Pembina</option>
+                    <option value="industri">IKM / Industri</option>
                 </select>
 
                 <div id="formPembina" style="display:none;">
-                    <input id="namaPembina" placeholder="Nama" type="text">
+                    <input id="namaPembina" placeholder="Nama Lengkap" type="text">
                     <input id="instansi" placeholder="Instansi (Satuan Kerja)" type="text">
                     <input id="nip" placeholder="NIP/NIP PPPK" type="text">
                     <input id="emailPembina" placeholder="Email" type="email">
-                    <input id="passwordPembina" placeholder="Password" type="password">
+                    <input id="passwordPembina" placeholder="Password (Min. 6 Karakter)" type="password">
                 </div>
 
                 <div id="formIndustri" style="display:none;">
                     <input id="namaAdminIndustri" placeholder="Nama Admin" type="text">
-                    <input id="namaPerusahaanIndustri" placeholder="Nama Perusahaan" type="text">
+                    <input id="namaPerusahaanIndustri" placeholder="Nama IKM / Perusahaan" type="text">
                     <input id="nibIndustri" placeholder="NIB" type="text">
                     <input id="emailIndustri" placeholder="Email" type="email">
-                    <input id="passwordIndustri" placeholder="Password" type="password">
+                    <input id="passwordIndustri" placeholder="Password (Min. 6 Karakter)" type="password">
                 </div>
 
-                <div id="formSuplier" style="display:none;">
-                    <input id="namaAdminSuplier" placeholder="Nama Admin" type="text">
-                    <input id="namaPerusahaanSuplier" placeholder="Nama Perusahaan" type="text">
-                    <input id="nibSuplier" placeholder="NIB" type="text">
-                    <input id="emailSuplier" placeholder="Email" type="email">
-                    <input id="passwordSuplier" placeholder="Password" type="password">
-                </div>
-
-                <button onclick="daftarAkun()">Daftar</button>
+                <button onclick="daftarAkun()" class="btn-primary" style="width: 100%; margin-top: 10px;">Daftar Sekarang</button>
             </div>
         </div>
 
@@ -300,4 +291,5 @@
     <script src="script.js"></script>
 </body>
 </html>
+
 
