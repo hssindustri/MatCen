@@ -265,6 +265,18 @@
                 const userDoc = await getDoc(doc(db, 'users', user.uid));
                 if (userDoc.exists()) {
                     const data = userDoc.data();
+                    const userDoc = await getDoc(doc(db, 'users', user.uid));
+                if (userDoc.exists()) {
+                    const data = userDoc.data();
+                    
+                    // --- TAMBAHKAN 3 BARIS INI UNTUK MENDETEKSI MASALAH ---
+                    console.log("Data yang terbaca browser: ", data);
+                    console.log("Apakah tipe admin/pembina? ", (data.tipe === 'admin' || data.tipe === 'pembina'));
+                    console.log("Apakah status verified true? ", data.verified === true);
+                    // ------------------------------------------------------
+                    
+                    // Admin utama ATAU Pembina yang sudah diverifikasi bisa melihat dashboard verifikasi
+                    if ((data.tipe === 'admin' || data.tipe === 'pembina') && data.verified === true) {
                     
                     // Admin utama ATAU Pembina yang sudah diverifikasi bisa melihat dashboard verifikasi
                     if ((data.tipe === 'admin' || data.tipe === 'pembina') && data.verified) {
@@ -292,6 +304,7 @@
     <script src="script.js"></script>
 </body>
 </html>
+
 
 
 
