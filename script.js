@@ -25,36 +25,28 @@ function switchTab(tab) {
     });
 }
 
-// ========== DAFTAR PAKAI FIREBASE ==========
-document.getElementById('registerForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const name  = document.getElementById('regName').value.trim();
-    const email = document.getElementById('regEmail').value.trim();
-    const pass  = document.getElementById('regPass').value;
-    const role  = document.getElementById('regRole').value;
-
-    if (pass.length < 6) {
-        alert('Password minimal 6 karakter!');
-        return;
-    }
-
-    auth.createUserWithEmailAndPassword(email, pass)
-        .then((cred) => {
-            return db.collection('users').doc(cred.user.uid).set({
-                name, email, role, orders: 0,
-                products: Math.floor(Math.random() * 50) + 10,
-                joined: new Date()
-            });
-        })
-        .then(() => {
-            alert('Daftar berhasil! Silakan login.');
-            document.getElementById('registerForm').reset();
-            closeModal();
-        })
-        .catch(err => {
-            alert(err.message);
+// Contoh Logika Pendaftaran yang Benar
+auth.createUserWithEmailAndPassword(email, pass)
+    .then((userCredential) => {
+        const user = userCredential.user;
+        
+        // PENTING: Simpan profil ke Firestore (collection 'users')
+        return db.collection('users').doc(user.uid).set({
+            name: name,
+            email: email,
+            role: role,              // Menangkap pilihan 'IKM' atau 'Fasilitator'
+            status: 'pending',       // <-- Pastikan ada atribut status ini!
+            verified: false,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
-});
+    })
+    .then(() => {
+        alert("Pendaftaran berhasil! Menunggu verifikasi.");
+        // Redirect atau tutup modal
+    })
+    .catch((error) => {
+        console.error("Error pendaftaran: ", error);
+    });
 
 // ========== LOGIN PAKAI FIREBASE ==========
 document.getElementById('loginForm').addEventListener('submit', function(e) {
@@ -127,3 +119,4 @@ function searchMaterials() {
         card.style.display = card.dataset.cat.toLowerCase().includes(query) ? 'block' : 'none';
     });
 }
+
