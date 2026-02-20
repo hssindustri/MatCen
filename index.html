@@ -121,6 +121,7 @@
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, collection, getDocs, query, where, updateDoc } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
+        // 1. Konfigurasi Firebase Anda
         const firebaseConfig = {
             apiKey: "AIzaSyDlsuZTlENpl1xT36w7mDBk6zWxO9ghbGI",
             authDomain: "matcen-industri.firebaseapp.com",
@@ -134,25 +135,21 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // --- DAFTARKAN FUNGSI MODAL KE WINDOW AGAR TOMBOL CLOSE BERFUNGSI ---
-        window.openModal = (modalId) => {
-            document.getElementById(modalId).style.display = "block";
-        };
-        window.closeModal = (modalId) => {
-            document.getElementById(modalId).style.display = "none";
-        };
+        // 2. Fungsi Kontrol Modal (Pop-up)
+        window.openModal = (modalId) => { document.getElementById(modalId).style.display = "block"; };
+        window.closeModal = (modalId) => { document.getElementById(modalId).style.display = "none"; };
 
         document.getElementById('linkLogin').addEventListener('click', () => openModal('loginModal'));
         document.getElementById('btnRegisterHero').addEventListener('click', () => openModal('registerModal'));
 
-        // --- LOGIKA DROPDOWN DAFTAR ---
+        // 3. Logika Pilihan Tipe Akun Saat Daftar
         document.getElementById('tipeAkun').addEventListener('change', () => {
             const tipe = document.getElementById('tipeAkun').value;
             document.getElementById('formPembina').style.display = tipe === 'pembina' ? 'block' : 'none';
             document.getElementById('formIndustri').style.display = tipe === 'industri' ? 'block' : 'none';
         });
 
-        // Fungsi Daftar Akun
+        // 4. Fungsi Daftar Akun ke Firebase
         window.daftarAkun = async () => {
             const tipe = document.getElementById('tipeAkun').value;
             let email, password, data = { tipe, status: 'pending', verified: false };
@@ -170,23 +167,21 @@
                 data.namaPerusahaan = document.getElementById('namaPerusahaanIndustri').value;
                 data.nib = document.getElementById('nibIndustri').value;
             } else {
-                alert('Pilih tipe akun terlebih dahulu!');
-                return;
+                alert('Pilih tipe akun terlebih dahulu!'); return;
             }
 
             try {
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                const uid = userCredential.user.uid;
-                data.email = email; // Simpan email ke database
-                await setDoc(doc(db, 'users', uid), data);
-                alert('Pendaftaran berhasil! Silakan tunggu verifikasi dari Admin/Fasilitator.');
+                data.email = email; 
+                await setDoc(doc(db, 'users', userCredential.user.uid), data);
+                alert('Pendaftaran berhasil! Silakan tunggu verifikasi dari Admin.');
                 closeModal('registerModal');
             } catch (e) {
                 alert('Error Pendaftaran: ' + e.message);
             }
         };
 
-        // Fungsi Login
+        // 5. Fungsi Login
         window.loginAkun = async () => {
             const email = document.getElementById('emailLogin').value;
             const password = document.getElementById('passwordLogin').value;
@@ -195,29 +190,27 @@
                 alert('Login berhasil!');
                 closeModal('loginModal');
             } catch (e) {
-                alert('Error Login: ' + e.message);
+                alert('Password salah atau email belum terdaftar!');
             }
         };
 
-        // Fungsi Logout
+        // 6. Fungsi Logout
         window.logout = async () => {
             await signOut(auth);
-            alert('Logout berhasil!');
+            alert('Anda telah keluar.');
             document.getElementById('adminDashboard').style.display = 'none';
-            document.getElementById('navAdmin').style.display = 'none'; // Sembunyikan menu admin saat logout
+            if(document.getElementById('navAdmin')) document.getElementById('navAdmin').style.display = 'none'; 
             document.getElementById('navLogin').style.display = 'block';
             document.getElementById('navUser').style.display = 'none';
         };
 
-        // --- FUNGSI VERIFIKASI DI WEBSITE (DASHBOARD) ---
+        // 7. Fungsi Memuat Daftar IKM yang Butuh Verifikasi
         window.loadPending = async () => {
             const listPending = document.getElementById("pendingList");
-            listPending.innerHTML = "Memuat data..."; // Indikator loading
-            
+            listPending.innerHTML = "Memuat data..."; 
             try {
                 const q = query(collection(db, "users"), where("status", "==", "pending"));
                 const querySnapshot = await getDocs(q);
-                
                 listPending.innerHTML = ""; 
                 
                 if (querySnapshot.empty) {
@@ -229,7 +222,6 @@
                     const data = docSnap.data();
                     const namaTampil = data.tipe === 'pembina' ? data.nama : data.namaPerusahaan;
                     const entitas = data.tipe === 'pembina' ? data.instansi : `NIB: ${data.nib}`;
-
                     listPending.innerHTML += `
                         <li style="background: white; margin-bottom: 10px; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center;">
                             <div>
@@ -244,20 +236,20 @@
             }
         };
 
-        // Fungsi Eksekusi Tombol Verifikasi
+        // 8. Fungsi Eksekusi Tombol Verifikasi
         window.approve = async (uid) => {
             if(confirm('Apakah Anda yakin ingin menyetujui akun ini?')) {
                 try {
                     await updateDoc(doc(db, 'users', uid), { status: 'verified', verified: true });
-                    alert('Akun berhasil diverifikasi dan sekarang bisa login!');
-                    loadPending(); // Refresh daftar otomatis
+                    alert('Akun berhasil diverifikasi!');
+                    loadPending(); 
                 } catch(error) {
                     alert('Gagal memverifikasi: ' + error.message);
                 }
             }
         };
 
-        // Monitor Auth State (Cek saat user masuk)
+        // 9. MONITORING STATUS USER (Inti dari memunculkan menu Admin)
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 document.getElementById('navLogin').style.display = 'none';
@@ -267,38 +259,35 @@
                 const userDoc = await getDoc(doc(db, 'users', user.uid));
                 if (userDoc.exists()) {
                     const data = userDoc.data();
-                    const userDoc = await getDoc(doc(db, 'users', user.uid));
-                if (userDoc.exists()) {
-                    const data = userDoc.data();
                     
-                    // --- TAMBAHKAN 3 BARIS INI UNTUK MENDETEKSI MASALAH ---
-                    console.log("Data yang terbaca browser: ", data);
-                    console.log("Apakah tipe admin/pembina? ", (data.tipe === 'admin' || data.tipe === 'pembina'));
-                    console.log("Apakah status verified true? ", data.verified === true);
-                    // ------------------------------------------------------
-                    
-                    // Admin utama ATAU Pembina yang sudah diverifikasi bisa melihat dashboard verifikasi
+                    // CEK JIKA USER ADALAH ADMIN/PEMBINA
                     if ((data.tipe === 'admin' || data.tipe === 'pembina') && data.verified === true) {
-                    
-                    // Admin utama ATAU Pembina yang sudah diverifikasi bisa melihat dashboard verifikasi
-                    if ((data.tipe === 'admin' || data.tipe === 'pembina') && data.verified) {
                         document.getElementById('adminDashboard').style.display = 'block';
-                        document.getElementById('navAdmin').style.display = 'inline-block'; // Tampilkan tombol navbar Admin
-                        loadPending(); // Panggil daftar IKM yang butuh verifikasi
-                    } else if (data.verified) {
-                        // Jika IKM sudah diverifikasi
+                        
+                        // Memunculkan tombol Verifikasi IKM di navbar
+                        if(document.getElementById('navAdmin')) {
+                            document.getElementById('navAdmin').style.display = 'inline-block';
+                        }
+                        
+                        loadPending(); 
+                    } 
+                    // CEK JIKA USER ADALAH INDUSTRI (Sudah diverifikasi)
+                    else if (data.verified === true) {
                         document.getElementById('adminDashboard').style.display = 'none';
-                        document.getElementById('navAdmin').style.display = 'none';
-                    } else {
+                        if(document.getElementById('navAdmin')) document.getElementById('navAdmin').style.display = 'none';
+                    } 
+                    // JIKA BELUM DIVERIFIKASI
+                    else {
                         alert('Akun Anda masih berstatus PENDING. Silakan tunggu verifikasi Admin.');
-                        window.logout(); // Paksa keluar jika belum diverifikasi
+                        window.logout(); 
                     }
                 }
             } else {
+                // JIKA BELUM LOGIN
                 document.getElementById('navLogin').style.display = 'block';
                 document.getElementById('navUser').style.display = 'none';
                 document.getElementById('adminDashboard').style.display = 'none';
-                document.getElementById('navAdmin').style.display = 'none';
+                if(document.getElementById('navAdmin')) document.getElementById('navAdmin').style.display = 'none';
             }
         });
     </script>
@@ -306,6 +295,7 @@
     <script src="script.js"></script>
 </body>
 </html>
+
 
 
 
