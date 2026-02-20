@@ -243,17 +243,24 @@
             }
         });
 
-        // Load Pending Akun untuk Admin
-        async function loadPending() {
-            const q = query(collection(db, 'users'), where('status', '==', 'pending'));
-            const querySnapshot = await getDocs(q);
-            const list = document.getElementById('pendingList');
-            list.innerHTML = '';
-            querySnapshot.forEach((docSnap) => {
-                const data = docSnap.data();
-                list.innerHTML += `<li>${data.email} - ${data.tipe} <button onclick="approve('${docSnap.id}', '${data.tipe}')">Approve</button></li>`;
-            });
-        }
+      // Untuk Admin
+        window.loadPending = async () => {
+    // Memanggil semua user yang statusnya masih pending
+    const q = query(collection(db, "users"), where("status", "==", "pending"));
+    const querySnapshot = await getDocs(q);
+    
+    const listPending = document.getElementById("pendingList");
+    listPending.innerHTML = ""; // Kosongkan daftar sebelum diisi
+    
+    querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        listPending.innerHTML += `
+            <li>
+                <strong>${data.name}</strong> (${data.role}) 
+                <button onclick="approve('${doc.id}')">Verifikasi</button>
+            </li>`;
+    });
+};
 
         // Fungsi Approve
         window.approve = async (uid, tipe) => {
@@ -293,3 +300,4 @@
     <script src="script.js"></script>
 </body>
 </html>
+
