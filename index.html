@@ -114,7 +114,7 @@
     </main>
 
     <!-- Firebase SDK Modular -->
-   <script type="module">
+  <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, collection, getDocs, query, where, updateDoc } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
@@ -131,15 +131,8 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-       
-       // Admin utama ATAU Pembina yang sudah diverifikasi bisa melihat dashboard verifikasi
-                    if ((data.tipe === 'admin' || data.tipe === 'pembina') && data.verified) {
-                        document.getElementById('adminDashboard').style.display = 'block';
-                        document.getElementById('navAdmin').style.display = 'inline-block'; // <-- TAMBAHKAN BARIS INI
-                        loadPending(); // Panggil daftar IKM yang butuh verifikasi
-                    }
 
-        // --- SOLUSI 1: DAFTARKAN FUNGSI MODAL KE WINDOW AGAR TOMBOL CLOSE BERFUNGSI ---
+        // --- DAFTARKAN FUNGSI MODAL KE WINDOW AGAR TOMBOL CLOSE BERFUNGSI ---
         window.openModal = (modalId) => {
             document.getElementById(modalId).style.display = "block";
         };
@@ -150,7 +143,7 @@
         document.getElementById('linkLogin').addEventListener('click', () => openModal('loginModal'));
         document.getElementById('btnRegisterHero').addEventListener('click', () => openModal('registerModal'));
 
-        // --- SOLUSI 3: HAPUS SUPLIER DARI LOGIKA DROPDOWN ---
+        // --- LOGIKA DROPDOWN DAFTAR ---
         document.getElementById('tipeAkun').addEventListener('change', () => {
             const tipe = document.getElementById('tipeAkun').value;
             document.getElementById('formPembina').style.display = tipe === 'pembina' ? 'block' : 'none';
@@ -209,11 +202,12 @@
             await signOut(auth);
             alert('Logout berhasil!');
             document.getElementById('adminDashboard').style.display = 'none';
+            document.getElementById('navAdmin').style.display = 'none'; // Sembunyikan menu admin saat logout
             document.getElementById('navLogin').style.display = 'block';
             document.getElementById('navUser').style.display = 'none';
         };
 
-        // --- SOLUSI 2: FUNGSI VERIFIKASI DI WEBSITE (DASHBOARD) ---
+        // --- FUNGSI VERIFIKASI DI WEBSITE (DASHBOARD) ---
         window.loadPending = async () => {
             const listPending = document.getElementById("pendingList");
             listPending.innerHTML = "Memuat data..."; // Indikator loading
@@ -231,7 +225,6 @@
 
                 querySnapshot.forEach((docSnap) => {
                     const data = docSnap.data();
-                    // Sesuaikan nama yang ditampilkan berdasarkan tipe akun
                     const namaTampil = data.tipe === 'pembina' ? data.nama : data.namaPerusahaan;
                     const entitas = data.tipe === 'pembina' ? data.instansi : `NIB: ${data.nib}`;
 
@@ -276,10 +269,12 @@
                     // Admin utama ATAU Pembina yang sudah diverifikasi bisa melihat dashboard verifikasi
                     if ((data.tipe === 'admin' || data.tipe === 'pembina') && data.verified) {
                         document.getElementById('adminDashboard').style.display = 'block';
+                        document.getElementById('navAdmin').style.display = 'inline-block'; // Tampilkan tombol navbar Admin
                         loadPending(); // Panggil daftar IKM yang butuh verifikasi
                     } else if (data.verified) {
-                        // Jika IKM sudah diverifikasi, tampilkan menu industrinya
+                        // Jika IKM sudah diverifikasi
                         document.getElementById('adminDashboard').style.display = 'none';
+                        document.getElementById('navAdmin').style.display = 'none';
                     } else {
                         alert('Akun Anda masih berstatus PENDING. Silakan tunggu verifikasi Admin.');
                         window.logout(); // Paksa keluar jika belum diverifikasi
@@ -289,6 +284,7 @@
                 document.getElementById('navLogin').style.display = 'block';
                 document.getElementById('navUser').style.display = 'none';
                 document.getElementById('adminDashboard').style.display = 'none';
+                document.getElementById('navAdmin').style.display = 'none';
             }
         });
     </script>
@@ -296,6 +292,7 @@
     <script src="script.js"></script>
 </body>
 </html>
+
 
 
 
