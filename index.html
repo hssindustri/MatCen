@@ -116,12 +116,11 @@
     </main>
 
     <!-- Firebase SDK Modular -->
-  <script type="module">
+ <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, collection, getDocs, query, where, updateDoc } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
-        // 1. Konfigurasi Firebase Anda
         const firebaseConfig = {
             apiKey: "AIzaSyDlsuZTlENpl1xT36w7mDBk6zWxO9ghbGI",
             authDomain: "matcen-industri.firebaseapp.com",
@@ -135,7 +134,7 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // 2. Fungsi Kontrol Modal (Pop-up)
+        // 2. Fungsi Kontrol Modal
         window.openModal = (modalId) => { document.getElementById(modalId).style.display = "block"; };
         window.closeModal = (modalId) => { document.getElementById(modalId).style.display = "none"; };
 
@@ -149,7 +148,7 @@
             document.getElementById('formIndustri').style.display = tipe === 'industri' ? 'block' : 'none';
         });
 
-        // 4. Fungsi Daftar Akun ke Firebase
+        // 4. Fungsi Daftar Akun
         window.daftarAkun = async () => {
             const tipe = document.getElementById('tipeAkun').value;
             let email, password, data = { tipe, status: 'pending', verified: false };
@@ -204,22 +203,18 @@
             document.getElementById('navUser').style.display = 'none';
         };
 
-        // 7. Fungsi Memuat Daftar IKM yang Butuh Verifikasi
-       // 7. Fungsi Memuat Daftar yang Butuh Verifikasi (Difilter Berdasarkan Role)
+        // 7. Fungsi Memuat Daftar IKM/Pembina yang Butuh Verifikasi
         window.loadPending = async () => {
             const listPending = document.getElementById("pendingList");
             listPending.innerHTML = "Memuat data..."; 
             try {
                 let q;
-                // Cek siapa yang sedang login dari variabel global yang kita buat di fungsi auth
                 if (window.currentUserRole === 'admin') {
-                    // Jika ADMIN: Tampilkan semua yang berstatus pending (Pembina & IKM)
                     q = query(collection(db, "users"), where("status", "==", "pending"));
                 } else if (window.currentUserRole === 'pembina') {
-                    // Jika PEMBINA: Tampilkan HANYA yang berstatus pending DAN tipenya 'industri'
                     q = query(collection(db, "users"), where("status", "==", "pending"), where("tipe", "==", "industri"));
                 } else {
-                    return; // Hindari eksekusi jika role tidak valid
+                    return; 
                 }
 
                 const querySnapshot = await getDocs(q);
@@ -245,12 +240,24 @@
                 });
             } catch (error) {
                 console.error("Gagal memuat data verifikasi: ", error);
-                // Menangkap error jika butuh index Firebase
                 listPending.innerHTML = `<li>Gagal memuat data. Cek Console (F12) jika butuh pengaturan Index Firebase.</li>`;
             }
         };
 
-        // 9. MONITORING STATUS USER (Inti dari memunculkan menu Admin)
+        // 8. Fungsi Eksekusi Tombol Verifikasi
+        window.approve = async (uid) => {
+            if(confirm('Apakah Anda yakin ingin menyetujui akun ini?')) {
+                try {
+                    await updateDoc(doc(db, 'users', uid), { status: 'verified', verified: true });
+                    alert('Akun berhasil diverifikasi!');
+                    loadPending(); 
+                } catch(error) {
+                    alert('Gagal memverifikasi: ' + error.message);
+                }
+            }
+        };
+
+        // 9. MONITORING STATUS USER
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 document.getElementById('navLogin').style.display = 'none';
@@ -261,15 +268,12 @@
                 if (userDoc.exists()) {
                     const data = userDoc.data();
                     
-                 // CEK JIKA USER ADALAH ADMIN/PEMBINA
                     if ((data.tipe === 'admin' || data.tipe === 'pembina') && data.verified === true) {
                         
-                        // SIMPAN ROLE KE VARIABEL GLOBAL UNTUK FILTER DATA
                         window.currentUserRole = data.tipe; 
                         
                         document.getElementById('adminDashboard').style.display = 'block';
                         
-                        // Ubah Judul Dashboard Sesuai Jabatan
                         const judulPanel = document.querySelector('#adminDashboard h2');
                         if (judulPanel) {
                             judulPanel.innerHTML = `<i class="fas fa-user-shield"></i> ${data.tipe === 'admin' ? 'Panel Verifikasi Master (Admin)' : 'Panel Verifikasi IKM (Pembina)'}`;
@@ -280,31 +284,26 @@
                         }
                         
                         loadPending(); 
-                    }
-                        
-                        loadPending(); 
                     } 
-                    // CEK JIKA USER ADALAH INDUSTRI (Sudah diverifikasi)
                     else if (data.verified === true) {
                         document.getElementById('adminDashboard').style.display = 'none';
                         if(document.getElementById('navAdmin')) document.getElementById('navAdmin').style.display = 'none';
                     } 
-                    // JIKA BELUM DIVERIFIKASI
                     else {
                         alert('Akun Anda masih berstatus PENDING. Silakan tunggu verifikasi Admin.');
                         window.logout(); 
                     }
                 }
             } else {
-                // JIKA BELUM LOGIN
                 document.getElementById('navLogin').style.display = 'block';
                 document.getElementById('navUser').style.display = 'none';
                 document.getElementById('adminDashboard').style.display = 'none';
                 if(document.getElementById('navAdmin')) document.getElementById('navAdmin').style.display = 'none';
             }
         });
-</script>
+    </script>
     
     </body>
 </html>
+
 
