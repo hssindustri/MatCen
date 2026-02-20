@@ -108,10 +108,10 @@
     </main>
 
     <!-- Firebase SDK Modular -->
-    <script type="module">
+   <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, collection, getDocs, query, where, updateDoc, onSnapshot, orderBy, addDoc } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, getDocs, query, where, updateDoc } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDlsuZTlENpl1xT36w7mDBk6zWxO9ghbGI",
@@ -126,24 +126,22 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // Fungsi Show/Close Modal
-        function openModal(modalId) {
+        // --- SOLUSI 1: DAFTARKAN FUNGSI MODAL KE WINDOW AGAR TOMBOL CLOSE BERFUNGSI ---
+        window.openModal = (modalId) => {
             document.getElementById(modalId).style.display = "block";
-        }
-        function closeModal(modalId) {
+        };
+        window.closeModal = (modalId) => {
             document.getElementById(modalId).style.display = "none";
-        }
+        };
 
-        // Event Listener untuk tombol login dan register
         document.getElementById('linkLogin').addEventListener('click', () => openModal('loginModal'));
         document.getElementById('btnRegisterHero').addEventListener('click', () => openModal('registerModal'));
 
-        // Ganti form berdasarkan dropdown tipe akun
+        // --- SOLUSI 3: HAPUS SUPLIER DARI LOGIKA DROPDOWN ---
         document.getElementById('tipeAkun').addEventListener('change', () => {
             const tipe = document.getElementById('tipeAkun').value;
             document.getElementById('formPembina').style.display = tipe === 'pembina' ? 'block' : 'none';
             document.getElementById('formIndustri').style.display = tipe === 'industri' ? 'block' : 'none';
-            document.getElementById('formSuplier').style.display = tipe === 'suplier' ? 'block' : 'none';
         });
 
         // Fungsi Daftar Akun
@@ -163,25 +161,20 @@
                 data.namaAdmin = document.getElementById('namaAdminIndustri').value;
                 data.namaPerusahaan = document.getElementById('namaPerusahaanIndustri').value;
                 data.nib = document.getElementById('nibIndustri').value;
-            } else if (tipe === 'suplier') {
-                email = document.getElementById('emailSuplier').value;
-                password = document.getElementById('passwordSuplier').value;
-                data.namaAdmin = document.getElementById('namaAdminSuplier').value;
-                data.namaPerusahaan = document.getElementById('namaPerusahaanSuplier').value;
-                data.nib = document.getElementById('nibSuplier').value;
             } else {
-                alert('Pilih tipe akun!');
+                alert('Pilih tipe akun terlebih dahulu!');
                 return;
             }
 
             try {
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 const uid = userCredential.user.uid;
+                data.email = email; // Simpan email ke database
                 await setDoc(doc(db, 'users', uid), data);
-                alert('Pendaftaran berhasil! Menunggu verifikasi.');
+                alert('Pendaftaran berhasil! Silakan tunggu verifikasi dari Admin/Fasilitator.');
                 closeModal('registerModal');
             } catch (e) {
-                alert('Error: ' + e.message);
+                alert('Error Pendaftaran: ' + e.message);
             }
         };
 
@@ -194,7 +187,7 @@
                 alert('Login berhasil!');
                 closeModal('loginModal');
             } catch (e) {
-                alert('Error: ' + e.message);
+                alert('Error Login: ' + e.message);
             }
         };
 
@@ -203,12 +196,60 @@
             await signOut(auth);
             alert('Logout berhasil!');
             document.getElementById('adminDashboard').style.display = 'none';
-            document.getElementById('btnTambahSupplier').style.display = 'none';
             document.getElementById('navLogin').style.display = 'block';
             document.getElementById('navUser').style.display = 'none';
         };
 
-        // Monitor Auth State
+        // --- SOLUSI 2: FUNGSI VERIFIKASI DI WEBSITE (DASHBOARD) ---
+        window.loadPending = async () => {
+            const listPending = document.getElementById("pendingList");
+            listPending.innerHTML = "Memuat data..."; // Indikator loading
+            
+            try {
+                const q = query(collection(db, "users"), where("status", "==", "pending"));
+                const querySnapshot = await getDocs(q);
+                
+                listPending.innerHTML = ""; 
+                
+                if (querySnapshot.empty) {
+                    listPending.innerHTML = "<li>Tidak ada akun yang menunggu verifikasi.</li>";
+                    return;
+                }
+
+                querySnapshot.forEach((docSnap) => {
+                    const data = docSnap.data();
+                    // Sesuaikan nama yang ditampilkan berdasarkan tipe akun
+                    const namaTampil = data.tipe === 'pembina' ? data.nama : data.namaPerusahaan;
+                    const entitas = data.tipe === 'pembina' ? data.instansi : `NIB: ${data.nib}`;
+
+                    listPending.innerHTML += `
+                        <li style="background: white; margin-bottom: 10px; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <strong>${namaTampil}</strong> <span class="gov-badge">${data.tipe.toUpperCase()}</span><br>
+                                <small>${data.email} | ${entitas}</small>
+                            </div>
+                            <button class="btn-primary" style="padding: 8px 15px; font-size: 14px;" onclick="approve('${docSnap.id}')">Verifikasi Akun</button>
+                        </li>`;
+                });
+            } catch (error) {
+                console.error("Gagal memuat data verifikasi: ", error);
+            }
+        };
+
+        // Fungsi Eksekusi Tombol Verifikasi
+        window.approve = async (uid) => {
+            if(confirm('Apakah Anda yakin ingin menyetujui akun ini?')) {
+                try {
+                    await updateDoc(doc(db, 'users', uid), { status: 'verified', verified: true });
+                    alert('Akun berhasil diverifikasi dan sekarang bisa login!');
+                    loadPending(); // Refresh daftar otomatis
+                } catch(error) {
+                    alert('Gagal memverifikasi: ' + error.message);
+                }
+            }
+        };
+
+        // Monitor Auth State (Cek saat user masuk)
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 document.getElementById('navLogin').style.display = 'none';
@@ -218,78 +259,30 @@
                 const userDoc = await getDoc(doc(db, 'users', user.uid));
                 if (userDoc.exists()) {
                     const data = userDoc.data();
-                    if (data.tipe === 'admin' && data.verified) {
+                    
+                    // Admin utama ATAU Pembina yang sudah diverifikasi bisa melihat dashboard verifikasi
+                    if ((data.tipe === 'admin' || data.tipe === 'pembina') && data.verified) {
                         document.getElementById('adminDashboard').style.display = 'block';
-                        loadPending();
+                        loadPending(); // Panggil daftar IKM yang butuh verifikasi
                     } else if (data.verified) {
-                        // Tampilkan fitur sesuai role, misal tombol tambah supplier untuk suplier/industri
-                        document.getElementById('btnTambahSupplier').style.display = 'block';
+                        // Jika IKM sudah diverifikasi, tampilkan menu industrinya
+                        document.getElementById('adminDashboard').style.display = 'none';
                     } else {
-                        alert('Akun Anda menunggu verifikasi.');
+                        alert('Akun Anda masih berstatus PENDING. Silakan tunggu verifikasi Admin.');
+                        window.logout(); // Paksa keluar jika belum diverifikasi
                     }
                 }
             } else {
                 document.getElementById('navLogin').style.display = 'block';
                 document.getElementById('navUser').style.display = 'none';
+                document.getElementById('adminDashboard').style.display = 'none';
             }
         });
-
-      // Untuk Admin
-        window.loadPending = async () => {
-    // Memanggil semua user yang statusnya masih pending
-    const q = query(collection(db, "users"), where("status", "==", "pending"));
-    const querySnapshot = await getDocs(q);
-    
-    const listPending = document.getElementById("pendingList");
-    listPending.innerHTML = ""; // Kosongkan daftar sebelum diisi
-    
-    querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        listPending.innerHTML += `
-            <li>
-                <strong>${data.name}</strong> (${data.role}) 
-                <button onclick="approve('${doc.id}')">Verifikasi</button>
-            </li>`;
-    });
-};
-
-        // Fungsi Approve
-        window.approve = async (uid, tipe) => {
-            await updateDoc(doc(db, 'users', uid), { status: 'verified', verified: true });
-            alert('Akun disetujui!');
-            loadPending();
-        };
-
-        // Fungsi Tambah Supplier (contoh)
-        window.tambahSupplier = async () => {
-            const nama = prompt("Nama supplier:");
-            const kategori = prompt("Kategori (Metal/Plastik/dll):");
-            if (nama && kategori) {
-                await addDoc(collection(db, "suppliers"), {
-                    nama: nama,
-                    kategori: kategori,
-                    jumlah: 1,
-                    timestamp: new Date()
-                });
-                alert("Supplier berhasil ditambah!");
-            }
-        };
-
-        // Tampilkan daftar supplier real-time
-        const listSupplier = document.getElementById("list");
-        if (listSupplier) {
-            onSnapshot(query(collection(db, "suppliers"), orderBy("timestamp", "desc")), (snap) => {
-                listSupplier.innerHTML = "";
-                snap.forEach(d => {
-                    const data = d.data();
-                    listSupplier.innerHTML += `<li><strong>${data.nama}</strong> — ${data.kategori}</li>`;
-                });
-            });
-        }
     </script>
     <!-- Baru script.js -->
     <script src="script.js"></script>
 </body>
 </html>
+
 
 
