@@ -25,6 +25,7 @@
                 <li><a href="#kategori"><i class="fas fa-boxes"></i> Katalog</a></li>
                 <li><a href="#supplier"><i class="fas fa-users"></i> Supplier</a></li>
                 <li><a href="#industri"><i class="fas fa-building"></i> Industri</a></li>
+                <li id="navAdmin" style="display: none;"><a href="#adminDashboard" style="background-color: #F15A24;"><i class="fas fa-user-check"></i> Verifikasi IKM</a></li>
                 <li id="navLogin" style="display: block;"><a href="#" id="linkLogin"><i class="fas fa-sign-in-alt"></i> Masuk</a></li>
                 <li id="navUser" class="nav-user" style="display:none;">
                     <span id="userName"></span>
@@ -93,10 +94,15 @@
         </div>
 
         <!-- Dashboard Admin (ditampilkan kalau login sebagai admin) -->
-        <section id="adminDashboard" style="display:none;">
-            <h2>Dashboard Admin</h2>
-            <h3>Pengajuan Akun Menunggu Verifikasi</h3>
-            <ul id="pendingList"></ul>
+       <section id="adminDashboard" class="section" style="display:none; background: #fff; border-top: 4px solid #F15A24; margin-top: 2rem; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f0f0f0; padding-bottom: 1rem; margin-bottom: 1rem;">
+                <h2 style="color: #002D5B;"><i class="fas fa-user-shield"></i> Panel Verifikasi Pembina</h2>
+                <span class="gov-badge" style="font-size: 1rem;">Admin Area</span>
+            </div>
+            <p style="margin-bottom: 1rem; color: #666;">Daftar akun IKM/Industri yang menunggu persetujuan Anda:</p>
+            
+            <ul id="pendingList" style="list-style: none; padding: 0;">
+                </ul>
         </section>
 
         <!-- Section lain dari index.html asli (truncated, tambahkan sesuai asli) -->
@@ -125,6 +131,13 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+       
+       // Admin utama ATAU Pembina yang sudah diverifikasi bisa melihat dashboard verifikasi
+                    if ((data.tipe === 'admin' || data.tipe === 'pembina') && data.verified) {
+                        document.getElementById('adminDashboard').style.display = 'block';
+                        document.getElementById('navAdmin').style.display = 'inline-block'; // <-- TAMBAHKAN BARIS INI
+                        loadPending(); // Panggil daftar IKM yang butuh verifikasi
+                    }
 
         // --- SOLUSI 1: DAFTARKAN FUNGSI MODAL KE WINDOW AGAR TOMBOL CLOSE BERFUNGSI ---
         window.openModal = (modalId) => {
@@ -283,6 +296,7 @@
     <script src="script.js"></script>
 </body>
 </html>
+
 
 
 
