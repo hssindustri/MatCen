@@ -1,30 +1,5 @@
 let currentUser = null;
 
-// Modal functions
-function showModal(tab = 'login') {
-    document.getElementById('modal').style.display = 'block';
-    switchTab(tab);
-}
-
-function closeModal() {
-    document.getElementById('modal').style.display = 'none';
-}
-
-function switchTab(tab) {
-    const loginForm = document.getElementById('loginForm');
-    const registerForm = document.getElementById('registerForm');
-
-    loginForm.style.display = tab === 'login' ? 'block' : 'none';
-    registerForm.style.display = tab === 'login' ? 'none' : 'block';
-
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.classList.remove('active');
-        if (btn.innerText.includes(tab === 'login' ? 'Login' : 'Daftar')) {
-            btn.classList.add('active');
-        }
-    });
-}
-
 // Contoh Logika Pendaftaran yang Benar
 auth.createUserWithEmailAndPassword(email, pass)
     .then((userCredential) => {
@@ -119,4 +94,5 @@ function searchMaterials() {
         card.style.display = card.dataset.cat.toLowerCase().includes(query) ? 'block' : 'none';
     });
 }
+
 
