@@ -124,6 +124,21 @@
                     <option value="pembina">Fasilitator / Pembina</option>
                     <option value="industri">IKM / Industri</option>
                 </select>
+                        <div id="supplierModal" class="modal" style="display:none;">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal('supplierModal')">&times;</span>
+                <h2 style="color: #002D5B;"><i class="fas fa-truck-loading"></i> Daftarkan Supplier</h2>
+                <p style="font-size: 0.9rem; color: #666; margin-bottom: 15px;">Akun ini akan otomatis aktif dan terverifikasi.</p>
+                
+                <input id="namaSupplier" placeholder="Nama Perusahaan Supplier" type="text">
+                <input id="picSupplier" placeholder="Nama PIC (Kontak Person)" type="text">
+                <input id="kategoriSupplier" placeholder="Kategori Material (Cth: Logam, Karet)" type="text">
+                <input id="emailSupplier" placeholder="Email Akun Supplier" type="email">
+                <input id="passwordSupplier" placeholder="Password (Min. 6 Karakter)" type="password">
+                
+                <button onclick="simpanSupplier()" class="btn-primary" style="width: 100%; margin-top: 10px; background-color: #28a745; border: none;">Simpan & Aktifkan Supplier</button>
+            </div>
+        </div>
 
                 <div id="formPembina" style="display:none;">
                     <input id="namaPembina" placeholder="Nama Lengkap" type="text">
@@ -145,11 +160,16 @@
             </div>
         </div>
 
-        <section id="adminDashboard" class="section" style="display:none; background: #fff; border-top: 4px solid #F15A24; margin-top: 2rem; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+                <section id="adminDashboard" class="section" style="display:none; background: #fff; border-top: 4px solid #F15A24; margin-top: 2rem; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
             <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f0f0f0; padding-bottom: 1rem; margin-bottom: 1rem;">
                 <h2 style="color: #002D5B;"><i class="fas fa-user-shield"></i> Panel Verifikasi</h2>
                 <span class="gov-badge" style="font-size: 1rem;">Admin Area</span>
             </div>
+            
+            <div style="margin-bottom: 20px;">
+                <button class="btn-primary" onclick="openModal('supplierModal')" style="background-color: #28a745; border: none;"><i class="fas fa-plus-circle"></i> Daftarkan Supplier Baru</button>
+            </div>
+
             <p style="margin-bottom: 1rem; color: #666;">Daftar akun yang menunggu persetujuan Anda:</p>
             <ul id="pendingList" style="list-style: none; padding: 0;"></ul>
         </section>
@@ -190,6 +210,60 @@
         });
 
         window.daftarAkun = async () => {
+                    // --- FITUR TAMBAH SUPPLIER OLEH ADMIN/PEMBINA ---
+        
+        // Membuat instance Firebase kedua agar Admin tidak ter-logout saat mendaftarkan user baru
+        const appSekunder = initializeApp(firebaseConfig, "SupplierApp");
+        const authSekunder = getAuth(appSekunder);
+
+        window.simpanSupplier = async () => {
+            const nama = document.getElementById('namaSupplier').value;
+            const pic = document.getElementById('picSupplier').value;
+            const kategori = document.getElementById('kategoriSupplier').value;
+            const email = document.getElementById('emailSupplier').value;
+            const password = document.getElementById('passwordSupplier').value;
+
+            if(!nama || !email || !password) {
+                alert("Nama, Email, dan Password wajib diisi!");
+                return;
+            }
+
+            try {
+                // Buat akun pakai authSekunder (Admin tetap aman login)
+                const userCred = await createUserWithEmailAndPassword(authSekunder, email, password);
+                
+                // Simpan data ke Firestore (pakai db utama)
+                const supplierData = {
+                    tipe: 'supplier',
+                    namaPerusahaan: nama,
+                    pic: pic,
+                    kategori: kategori,
+                    email: email,
+                    status: 'verified', // Langsung verified karena dibuat oleh Admin/Pembina
+                    verified: true,
+                    didaftarkanOleh: auth.currentUser.email
+                };
+
+                await setDoc(doc(db, 'users', userCred.user.uid), supplierData);
+                
+                // Logout akun sekunder agar bersih
+                await signOut(authSekunder);
+
+                alert('Supplier berhasil didaftarkan dan sudah aktif!');
+                closeModal('supplierModal');
+                
+                // Bersihkan form
+                document.getElementById('namaSupplier').value = '';
+                document.getElementById('picSupplier').value = '';
+                document.getElementById('kategoriSupplier').value = '';
+                document.getElementById('emailSupplier').value = '';
+                document.getElementById('passwordSupplier').value = '';
+
+            } catch (error) {
+                alert('Gagal mendaftarkan supplier: ' + error.message);
+            }
+        };
+
             const tipe = document.getElementById('tipeAkun').value;
             let email, password, data = { tipe: tipe, status: 'pending', verified: false };
 
@@ -343,5 +417,6 @@
     </script>
 </body>
 </html>
+
 
 
