@@ -153,7 +153,6 @@
                 
                 <input id="namaSupplier" placeholder="Nama Perusahaan Supplier" type="text">
                 <input id="picSupplier" placeholder="Nama PIC (Kontak Person)" type="text">
-                <input id="kategoriSupplier" placeholder="Kategori Material (Cth: Logam, Karet)" type="text">
                 <input id="emailSupplier" placeholder="Email Akun Supplier" type="email">
                 <input id="passwordSupplier" placeholder="Password (Min. 6 Karakter)" type="password">
                 
@@ -429,6 +428,7 @@
     </script>
 </body>
 </html>
+
 
 
 
