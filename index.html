@@ -229,11 +229,8 @@
             document.getElementById('formPembina').style.display = tipe === 'pembina' ? 'block' : 'none';
             document.getElementById('formIndustri').style.display = tipe === 'industri' ? 'block' : 'none';
         });
-
-        window.daftarAkun = async () => {
-                    // --- FITUR TAMBAH SUPPLIER OLEH ADMIN/PEMBINA ---
-        
-        // Membuat instance Firebase kedua agar Admin tidak ter-logout saat mendaftarkan user baru
+        // --- FITUR TAMBAH SUPPLIER OLEH ADMIN/PEMBINA ---
+        // Posisikan di LUAR window.daftarAkun
         const appSekunder = initializeApp(firebaseConfig, "SupplierApp");
         const authSekunder = getAuth(appSekunder);
 
@@ -250,30 +247,24 @@
             }
 
             try {
-                // Buat akun pakai authSekunder (Admin tetap aman login)
                 const userCred = await createUserWithEmailAndPassword(authSekunder, email, password);
-                
-                // Simpan data ke Firestore (pakai db utama)
                 const supplierData = {
                     tipe: 'supplier',
                     namaPerusahaan: nama,
                     pic: pic,
                     kategori: kategori,
                     email: email,
-                    status: 'verified', // Langsung verified karena dibuat oleh Admin/Pembina
+                    status: 'verified', 
                     verified: true,
                     didaftarkanOleh: auth.currentUser.email
                 };
 
                 await setDoc(doc(db, 'users', userCred.user.uid), supplierData);
-                
-                // Logout akun sekunder agar bersih
                 await signOut(authSekunder);
 
                 alert('Supplier berhasil didaftarkan dan sudah aktif!');
                 closeModal('supplierModal');
                 
-                // Bersihkan form
                 document.getElementById('namaSupplier').value = '';
                 document.getElementById('picSupplier').value = '';
                 document.getElementById('kategoriSupplier').value = '';
@@ -285,6 +276,9 @@
             }
         };
 
+        // --- FUNGSI DAFTAR AKUN IKM/PEMBINA ---
+        
+        window.daftarAkun = async () => {
             const tipe = document.getElementById('tipeAkun').value;
             let email, password, data = { tipe: tipe, status: 'pending', verified: false };
 
@@ -438,6 +432,7 @@
     </script>
 </body>
 </html>
+
 
 
 
