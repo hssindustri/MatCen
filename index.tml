@@ -237,7 +237,6 @@
         window.simpanSupplier = async () => {
             const nama = document.getElementById('namaSupplier').value;
             const pic = document.getElementById('picSupplier').value;
-            const kategori = document.getElementById('kategoriSupplier').value;
             const email = document.getElementById('emailSupplier').value;
             const password = document.getElementById('passwordSupplier').value;
 
@@ -252,7 +251,6 @@
                     tipe: 'supplier',
                     namaPerusahaan: nama,
                     pic: pic,
-                    kategori: kategori,
                     email: email,
                     status: 'verified', 
                     verified: true,
@@ -267,7 +265,6 @@
                 
                 document.getElementById('namaSupplier').value = '';
                 document.getElementById('picSupplier').value = '';
-                document.getElementById('kategoriSupplier').value = '';
                 document.getElementById('emailSupplier').value = '';
                 document.getElementById('passwordSupplier').value = '';
 
@@ -432,6 +429,7 @@
     </script>
 </body>
 </html>
+
 
 
 
