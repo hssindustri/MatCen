@@ -124,7 +124,28 @@
                     <option value="pembina">Fasilitator / Pembina</option>
                     <option value="industri">IKM / Industri</option>
                 </select>
-                        <div id="supplierModal" class="modal" style="display:none;">
+
+                <div id="formPembina" style="display:none;">
+                    <input id="namaPembina" placeholder="Nama Lengkap" type="text">
+                    <input id="instansi" placeholder="Instansi (Satuan Kerja)" type="text">
+                    <input id="nip" placeholder="NIP/NIP PPPK" type="text">
+                    <input id="emailPembina" placeholder="Email" type="email">
+                    <input id="passwordPembina" placeholder="Password (Min. 6 Karakter)" type="password">
+                </div>
+
+                <div id="formIndustri" style="display:none;">
+                    <input id="namaAdminIndustri" placeholder="Nama Admin" type="text">
+                    <input id="namaPerusahaanIndustri" placeholder="Nama IKM / Perusahaan" type="text">
+                    <input id="nibIndustri" placeholder="NIB" type="text">
+                    <input id="emailIndustri" placeholder="Email" type="email">
+                    <input id="passwordIndustri" placeholder="Password (Min. 6 Karakter)" type="password">
+                </div>
+
+                <button onclick="daftarAkun()" class="btn-primary" style="width: 100%; margin-top: 10px;">Daftar Sekarang</button>
+            </div>
+        </div>
+
+        <div id="supplierModal" class="modal" style="display:none;">
             <div class="modal-content">
                 <span class="close" onclick="closeModal('supplierModal')">&times;</span>
                 <h2 style="color: #002D5B;"><i class="fas fa-truck-loading"></i> Daftarkan Supplier</h2>
@@ -417,6 +438,7 @@
     </script>
 </body>
 </html>
+
 
 
 
