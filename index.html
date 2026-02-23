@@ -162,6 +162,33 @@
                 <h2 style="color: #002D5B;"><i class="fas fa-user-shield"></i> Panel Verifikasi</h2>
                 <span class="gov-badge" style="font-size: 1rem;">Admin Area</span>
             </div>
+            // UNTUK MENU TAMBAH BAHAN BAKU //
+            <div id="materialModal" class="modal" style="display:none;">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal('materialModal')">&times;</span>
+                <h2 style="color: #002D5B;"><i class="fas fa-box"></i> Tambah Bahan Baku Baru</h2>
+                
+                <input id="namaMaterial" placeholder="Nama Material (Cth: Baja Karbon ASTM A36)" type="text">
+                
+                <select id="kategoriMaterial" style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px;">
+                    <option value="">-- Pilih Kategori --</option>
+                    <option value="Logam Dasar">Logam Dasar</option>
+                    <option value="Bahan Kimia">Bahan Kimia</option>
+                    <option value="Non-Logam">Non-Logam</option>
+                    <option value="Suku Cadang">Suku Cadang</option>
+                </select>
+
+                <div style="display: flex; gap: 10px;">
+                    <input id="stokMaterial" placeholder="Jumlah Stok" type="number" style="flex: 1;">
+                    <input id="satuanMaterial" placeholder="Satuan (Cth: Kg, Ton, Liter)" type="text" style="flex: 1;">
+                </div>
+                
+                <input id="hargaMaterial" placeholder="Harga per Satuan (Rp)" type="number">
+                <textarea id="deskripsiMaterial" placeholder="Deskripsi Singkat..." rows="3" style="width: 100%; margin-bottom: 10px; padding: 10px; border: 1px solid #ccc; border-radius: 5px;"></textarea>
+                
+                <button onclick="simpanMaterial()" class="btn-primary" style="width: 100%; margin-top: 10px; background-color: #0056b3; border: none;">Simpan ke Inventaris</button>
+            </div>
+        </div>
             
             <div style="margin-bottom: 20px;">
                 <button class="btn-primary" onclick="openModal('supplierModal')" style="background-color: #28a745; border: none;"><i class="fas fa-plus-circle"></i> Daftarkan Supplier Baru</button>
@@ -180,8 +207,7 @@
             <p style="color: #666; margin-bottom: 1.5rem;">Selamat datang! Kelola katalog bahan baku perusahaan Anda di sini.</p>
 
             <div style="margin-bottom: 20px;">
-                <button class="btn-primary" onclick="alert('Fitur tambah produk sedang dibangun!')" style="background-color: #0056b3; border: none;"><i class="fas fa-plus-circle"></i> Tambah Bahan Baku</button>
-            </div>
+<button class="btn-primary" onclick="openModal('materialModal')" style="background-color: #0056b3; border: none;"><i class="fas fa-plus-circle"></i> Tambah Bahan Baku</button>            </div>
 
             <div style="background-color: #f8f9fa; padding: 2rem; text-align: center; border-radius: 8px; border: 1px dashed #ccc;">
                 <i class="fas fa-box-open" style="font-size: 3rem; color: #ccc; margin-bottom: 1rem;"></i>
@@ -195,6 +221,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, collection, getDocs, query, where, updateDoc } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, getDocs, query, where, updateDoc, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDlsuZTlENpl1xT36w7mDBk6zWxO9ghbGI",
@@ -265,7 +292,50 @@
                 alert('Gagal mendaftarkan supplier: ' + error.message);
             }
         };
+        
+// --- FUNGSI TAMBAH BAHAN BAKU KE INVENTARIS ---
+        window.simpanMaterial = async () => {
+            const nama = document.getElementById('namaMaterial').value;
+            const kategori = document.getElementById('kategoriMaterial').value;
+            const stok = document.getElementById('stokMaterial').value;
+            const satuan = document.getElementById('satuanMaterial').value;
+            const harga = document.getElementById('hargaMaterial').value;
+            const deskripsi = document.getElementById('deskripsiMaterial').value;
 
+            if(!nama || !kategori || !stok || !satuan || !harga) {
+                alert("Mohon lengkapi semua data wajib (Nama, Kategori, Stok, Satuan, Harga)!");
+                return;
+            }
+
+            try {
+                // Menyimpan data material ke dalam koleksi 'materials' di Firebase
+                await addDoc(collection(db, 'materials'), {
+                    nama: nama,
+                    kategori: kategori,
+                    stok: Number(stok),
+                    satuan: satuan,
+                    harga: Number(harga),
+                    deskripsi: deskripsi,
+                    ditambahkanOleh: auth.currentUser.email,
+                    waktuDibuat: serverTimestamp()
+                });
+
+                alert('Berhasil! Bahan baku telah masuk ke sistem inventaris.');
+                closeModal('materialModal');
+                
+                // Bersihkan form setelah sukses
+                document.getElementById('namaMaterial').value = '';
+                document.getElementById('kategoriMaterial').value = '';
+                document.getElementById('stokMaterial').value = '';
+                document.getElementById('satuanMaterial').value = '';
+                document.getElementById('hargaMaterial').value = '';
+                document.getElementById('deskripsiMaterial').value = '';
+
+                // Nanti kita panggil fungsi untuk me-refresh daftar material di sini
+            } catch (error) {
+                alert('Gagal menyimpan bahan baku: ' + error.message);
+            }
+        };
         // --- FUNGSI DAFTAR AKUN IKM/PEMBINA ---
         window.daftarAkun = async () => {
             const tipe = document.getElementById('tipeAkun').value;
@@ -436,3 +506,4 @@
     </script>
 </body>
 </html>
+
