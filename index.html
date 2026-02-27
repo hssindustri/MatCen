@@ -21,55 +21,41 @@
     </div>
 </header>
 
-<section class="hero-new" style="position: relative; display: flex; flex-wrap: wrap; padding: 2rem 5%; min-height: 80vh; align-items: center; background-color: white; overflow: hidden;">
+<section class="hero-new" style="position: relative; display: flex; flex-wrap: wrap; padding: 2rem 5%; min-height: 85vh; align-items: center; background-color: #ffffff; overflow: hidden;">
     
-    <div style="position: absolute; bottom: 0; right: 0; width: 60%; height: 45%; background-color: var(--primary-color); z-index: 0; border-top-left-radius: 10px;"></div>
+    <div style="position: absolute; bottom: 0; right: 0; width: 65%; height: 35%; background-color: var(--primary-color); z-index: 0; border-top-left-radius: 20px;"></div>
 
     <div style="position: relative; z-index: 1; display: flex; width: 100%; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 2rem;">
         
         <div style="flex: 1; min-width: 300px; display: flex; flex-direction: column; align-items: center;">
-            <div style="background-color: var(--secondary-color); width: 350px; height: 350px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                <img src="logo-matcen.png" alt="Logo MatCen Besar" style="height: 250px;">
+            
+            <div style="position: relative; width: 350px; height: 350px; display: flex; align-items: center; justify-content: center;">
+                <div style="position: absolute; background-color: var(--secondary-color); width: 350px; height: 350px; border-radius: 50%; z-index: 1; left: -30px;"></div>
+                <img src="logo-matcen.png" alt="Logo MatCen Besar" style="position: relative; height: 260px; z-index: 2;">
             </div>
             
-            <div style="margin-top: 40px; display: flex; gap: 20px;">
-                <button class="btn-primary" id="linkLoginHero" onclick="openModal('loginModal')" style="background-color: var(--primary-color); border-radius: 20px; padding: 10px 40px; font-size: 1.2rem;">log In</button>
-                <button class="btn-secondary" id="btnRegisterHero2" onclick="openModal('registerModal')" style="background-color: white; color: black; border: 2px solid black; border-radius: 20px; padding: 10px 40px; font-size: 1.2rem;">Daftar</button>
+            <div style="margin-top: 15px; display: flex; gap: 20px;">
+                <button class="btn-primary" onclick="openModal('loginModal')" style="background-color: var(--primary-color); border-radius: 25px; padding: 12px 35px; font-size: 1.1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">log In</button>
+                <button class="btn-secondary" onclick="openModal('registerModal')" style="background-color: white; color: black; border: 2px solid black; border-radius: 25px; padding: 12px 35px; font-size: 1.1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">Daftar</button>
             </div>
         </div>
 
         <div style="flex: 1; min-width: 300px; display: flex; flex-direction: column;">
-            <h1 style="font-size: 4.5rem; line-height: 0.9; margin-bottom: 2rem; font-family: 'Poppins', sans-serif;">
+            <h1 style="font-size: 4rem; line-height: 0.9; margin-bottom: 2rem; font-family: 'Poppins', sans-serif;">
                 <span style="color: var(--primary-color); font-weight: 700;">Material</span><br>
-                <span style="color: var(--secondary-color); font-weight: 400; font-size: 4rem;">CENTER</span>
+                <span style="color: var(--secondary-color); font-weight: 400; font-size: 3.5rem;">CENTER</span>
             </h1>
 
-            <div style="margin-top: 2rem;">
-                <div style="margin-bottom: 15px;">
-                    <span style="background-color: var(--secondary-color); color: var(--primary-color); padding: 5px 20px; border-radius: 20px; font-weight: bold; font-size: 1rem; display: inline-flex; align-items: center; gap: 10px;">Lokasi MatCen <i class="fas fa-chevron-right"></i></span>
+            <div style="margin-top: 1rem;">
+                
+                <div style="margin-bottom: 20px;">
+                    <span style="background-color: var(--secondary-color); color: var(--primary-color); padding: 5px 20px; border-radius: 25px; font-weight: bold; font-size: 1rem; display: inline-flex; align-items: center; gap: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                        Lokasi MatCen 
+                        <i class="fas fa-chevron-right" style="background: var(--primary-color); color: white; border-radius: 50%; padding: 4px 6px; font-size: 0.8rem;"></i>
+                    </span>
                 </div>
 
                 <div style="display: flex; gap: 20px;">
-                    <div style="background: var(--secondary-color); border-radius: 15px; overflow: hidden; width: 220px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">
-                        <img src="lokasi-takaru.jpg" alt="LIK Takaru" style="width: 100%; height: 130px; object-fit: cover; background-color: #ddd;">
-                        <div style="padding: 10px; color: black;">
-                            <h3 style="font-size: 1.1rem; margin: 0; font-weight: bold;">LIK TAKARU</h3>
-                            <p style="font-size: 0.9rem; margin: 0;">Kabupaten Tegal</p>
-                        </div>
-                    </div>
-
-                    <div style="background: var(--secondary-color); border-radius: 15px; overflow: hidden; width: 220px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">
-                        <img src="lokasi-sikim.jpg" alt="SIKIM" style="width: 100%; height: 130px; object-fit: cover; background-color: #ddd;">
-                        <div style="padding: 10px; color: black;">
-                            <h3 style="font-size: 1.1rem; margin: 0; font-weight: bold;">SIKIM</h3>
-                            <p style="font-size: 0.9rem; margin: 0;">Kabupaten Majalengka</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
 
         <section id="kategori" class="section" style="padding: 4rem 5%; background-color: #f8f9fa;">
             <div style="text-align: center; margin-bottom: 3rem;">
@@ -523,6 +509,7 @@
     </script>
 </body>
 </html>
+
 
 
 
