@@ -21,90 +21,66 @@
     </div>
 </header>
 
-<section class="hero-new" style="position: relative; display: flex; flex-wrap: wrap; padding: 2rem 5%; min-height: 85vh; align-items: center; background-color: #ffffff; overflow: hidden;">
+<section class="hero-aesthetic" style="position: relative; display: flex; flex-wrap: wrap; padding: 4rem 5%; min-height: 85vh; align-items: center; background-color: #ffffff; overflow: hidden; font-family: 'Poppins', sans-serif;">
     
-    <div style="position: absolute; bottom: 0; right: 0; width: 65%; height: 35%; background-color: var(--primary-color); z-index: 0; border-top-left-radius: 20px;"></div>
+    <div style="position: absolute; bottom: 0; right: 0; width: 55%; height: 60%; background: linear-gradient(135deg, var(--primary-color) 0%, #144d18 100%); z-index: 0; border-top-left-radius: 40px; box-shadow: -10px -10px 30px rgba(0,0,0,0.03);"></div>
 
-    <div style="position: relative; z-index: 1; display: flex; width: 100%; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 2rem;">
+    <div style="position: relative; z-index: 1; display: flex; width: 100%; max-width: 1200px; margin: 0 auto; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 3rem;">
         
-        <div style="flex: 1; min-width: 300px; display: flex; flex-direction: column; align-items: center;">
+        <div style="flex: 1; min-width: 320px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
             
-            <div style="position: relative; width: 350px; height: 350px; display: flex; align-items: center; justify-content: center;">
-                <div style="position: absolute; background-color: var(--secondary-color); width: 350px; height: 350px; border-radius: 50%; z-index: 1; left: -30px;"></div>
-                <img src="logo-matcen.png" alt="Logo MatCen Besar" style="position: relative; height: 260px; z-index: 2;">
+            <div style="position: relative; width: 320px; height: 320px; display: flex; align-items: center; justify-content: center; margin-bottom: 2rem;">
+                <div style="position: absolute; background: linear-gradient(135deg, var(--secondary-color) 0%, #E6A817 100%); width: 300px; height: 300px; border-radius: 50%; z-index: 1; box-shadow: 0 15px 35px rgba(251, 192, 45, 0.3);"></div>
+                <img src="logo-matcen.png" alt="Logo MatCen Besar" style="position: relative; height: 210px; object-fit: contain; z-index: 2; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.15));">
             </div>
             
-            <div style="margin-top: 15px; display: flex; gap: 20px;">
-                <button class="btn-primary" onclick="openModal('loginModal')" style="background-color: var(--primary-color); border-radius: 25px; padding: 12px 35px; font-size: 1.1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">log In</button>
-                <button class="btn-secondary" onclick="openModal('registerModal')" style="background-color: white; color: black; border: 2px solid black; border-radius: 25px; padding: 12px 35px; font-size: 1.1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">Daftar</button>
+            <div style="display: flex; gap: 15px; width: 100%; justify-content: center;">
+                <button class="btn-primary" onclick="openModal('loginModal')" style="background-color: var(--primary-color); border-radius: 30px; padding: 12px 0; font-size: 1rem; font-weight: 600; box-shadow: 0 8px 20px rgba(27, 94, 32, 0.2); transition: all 0.3s ease; flex: 1; max-width: 150px; text-align: center;">log In</button>
+                <button class="btn-secondary" onclick="openModal('registerModal')" style="background-color: white; color: var(--text-dark); border: 1px solid #E0E0E0; border-radius: 30px; padding: 12px 0; font-size: 1rem; font-weight: 600; box-shadow: 0 8px 20px rgba(0,0,0,0.05); transition: all 0.3s ease; flex: 1; max-width: 150px; text-align: center;">Daftar</button>
             </div>
         </div>
 
-        <div style="flex: 1; min-width: 300px; display: flex; flex-direction: column;">
-            <h1 style="font-size: 4rem; line-height: 0.9; margin-bottom: 2rem; font-family: 'Poppins', sans-serif;">
-                <span style="color: var(--primary-color); font-weight: 700;">Material</span><br>
-                <span style="color: var(--secondary-color); font-weight: 400; font-size: 3.5rem;">CENTER</span>
+        <div style="flex: 1.2; min-width: 350px; display: flex; flex-direction: column; justify-content: center;">
+            <h1 style="line-height: 1; margin-bottom: 2.5rem; letter-spacing: -1px;">
+                <span style="color: var(--primary-color); font-weight: 800; font-size: 4.2rem; display: block; margin-bottom: -5px;">Material</span>
+                <span style="color: var(--secondary-color); font-weight: 500; font-size: 3.8rem; display: block; text-shadow: 2px 2px 4px rgba(0,0,0,0.05);">CENTER</span>
             </h1>
 
-            <div style="margin-top: 1rem;">
-                
-                <div style="margin-bottom: 20px;">
-                    <span style="background-color: var(--secondary-color); color: var(--primary-color); padding: 5px 20px; border-radius: 25px; font-weight: bold; font-size: 1rem; display: inline-flex; align-items: center; gap: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+            <div>
+                <div style="margin-bottom: 1.5rem;">
+                    <span style="background-color: white; color: var(--primary-color); padding: 8px 20px; border-radius: 30px; font-weight: 700; font-size: 0.95rem; display: inline-flex; align-items: center; gap: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.06); border: 1px solid rgba(251, 192, 45, 0.4);">
+                        <span style="width: 8px; height: 8px; background-color: var(--secondary-color); border-radius: 50%; display: inline-block;"></span>
                         Lokasi MatCen 
-                        <i class="fas fa-chevron-right" style="background: var(--primary-color); color: white; border-radius: 50%; padding: 4px 6px; font-size: 0.8rem;"></i>
                     </span>
                 </div>
 
-                <div style="display: flex; gap: 20px;">
-
-        <section id="kategori" class="section" style="padding: 4rem 5%; background-color: #f8f9fa;">
-            <div style="text-align: center; margin-bottom: 3rem;">
-                <h2 style="color: #002D5B; font-size: 2rem;"><i class="fas fa-boxes"></i> Katalog Bahan Baku</h2>
-                <p style="color: #666; margin-top: 0.5rem;">Temukan material berkualitas dari supplier terverifikasi Kemenperin</p>
-            </div>
-
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
-                <div style="background: white; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); padding: 1.5rem; text-align: center; transition: transform 0.3s; cursor: pointer;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
-                    <div style="height: 80px; width: 80px; background: #e3f2fd; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
-                        <i class="fas fa-cubes" style="font-size: 2rem; color: #0056b3;"></i>
+                <div style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
+                    
+                    <div style="background: white; border-radius: 20px; overflow: hidden; width: 230px; text-align: left; box-shadow: 0 15px 35px rgba(0,0,0,0.08); border: 1px solid rgba(255,255,255,0.5);">
+                        <img src="lokasi-takaru.jpg" alt="LIK Takaru" style="width: 100%; height: 130px; object-fit: cover; border-bottom: 3px solid var(--secondary-color);">
+                        <div style="padding: 15px;">
+                            <h3 style="font-size: 1.05rem; margin: 0 0 5px 0; font-weight: 700; color: var(--text-dark);">LIK TAKARU</h3>
+                            <p style="font-size: 0.85rem; margin: 0; color: var(--text-muted); display: flex; align-items: center; gap: 6px;">
+                                <i class="fas fa-map-marker-alt" style="color: var(--primary-light);"></i> Kabupaten Tegal
+                            </p>
+                        </div>
                     </div>
-                    <h3 style="margin-bottom: 0.5rem; color: #333;">Logam Dasar</h3>
-                    <p style="color: #666; font-size: 0.9rem; margin-bottom: 1rem;">besi, tembaga, nikel, aluminium, dll</p>
-                    <span style="display: inline-block; background: #e8f5e9; color: #2e7d32; padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; margin-bottom: 1rem;">15 Supplier</span>
-                    <button class="btn-secondary" style="width: 100%; border: 1px solid #0056b3; background: transparent; color: #0056b3; padding: 8px; border-radius: 5px; cursor: pointer;">Lihat Detail</button>
-                </div>
 
-                <div style="background: white; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); padding: 1.5rem; text-align: center; transition: transform 0.3s; cursor: pointer;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
-                    <div style="height: 80px; width: 80px; background: #fff3e0; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
-                        <i class="fas fa-flask" style="font-size: 2rem; color: #e65100;"></i>
+                    <div style="background: white; border-radius: 20px; overflow: hidden; width: 230px; text-align: left; box-shadow: 0 15px 35px rgba(0,0,0,0.08); border: 1px solid rgba(255,255,255,0.5);">
+                        <img src="lokasi-sikim.jpg" alt="SIKIM" style="width: 100%; height: 130px; object-fit: cover; border-bottom: 3px solid var(--secondary-color);">
+                        <div style="padding: 15px;">
+                            <h3 style="font-size: 1.05rem; margin: 0 0 5px 0; font-weight: 700; color: var(--text-dark);">SIKIM</h3>
+                            <p style="font-size: 0.85rem; margin: 0; color: var(--text-muted); display: flex; align-items: center; gap: 6px;">
+                                <i class="fas fa-map-marker-alt" style="color: var(--primary-light);"></i> Kab. Majalengka
+                            </p>
+                        </div>
                     </div>
-                    <h3 style="margin-bottom: 0.5rem; color: #333;">Bahan Kimia</h3>
-                    <p style="color: #666; font-size: 0.9rem; margin-bottom: 1rem;">Polimer, Resin, Cat, Cairan Rem, dll</p>
-                    <span style="display: inline-block; background: #e8f5e9; color: #2e7d32; padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; margin-bottom: 1rem;">8 Supplier</span>
-                    <button class="btn-secondary" style="width: 100%; border: 1px solid #0056b3; background: transparent; color: #0056b3; padding: 8px; border-radius: 5px; cursor: pointer;">Lihat Detail</button>
-                </div>
 
-                <div style="background: white; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); padding: 1.5rem; text-align: center; transition: transform 0.3s; cursor: pointer;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
-                    <div style="height: 80px; width: 80px; background: #e8f5e9; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
-                        <i class="fas fa-leaf" style="font-size: 2rem; color: #2e7d32;"></i>
-                    </div>
-                    <h3 style="margin-bottom: 0.5rem; color: #333;">Material Non Logam</h3>
-                    <p style="color: #666; font-size: 0.9rem; margin-bottom: 1rem;">Plastik, Kaca, Kulit, dll</p>
-                    <span style="display: inline-block; background: #e8f5e9; color: #2e7d32; padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; margin-bottom: 1rem;">24 Supplier</span>
-                    <button class="btn-secondary" style="width: 100%; border: 1px solid #0056b3; background: transparent; color: #0056b3; padding: 8px; border-radius: 5px; cursor: pointer;">Lihat Detail</button>
-                </div>
-
-                <div style="background: white; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); padding: 1.5rem; text-align: center; transition: transform 0.3s; cursor: pointer;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
-                    <div style="height: 80px; width: 80px; background: #fce4ec; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
-                        <i class="fas fa-microchip" style="font-size: 2rem; color: #c2185b;"></i>
-                    </div>
-                    <h3 style="margin-bottom: 0.5rem; color: #333;">Bahan Lainnya</h3>
-                    <p style="color: #666; font-size: 0.9rem; margin-bottom: 1rem;">Komponen Elektronik, tooling, dll</p>
-                    <span style="display: inline-block; background: #e8f5e9; color: #2e7d32; padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; margin-bottom: 1rem;">12 Supplier</span>
-                    <button class="btn-secondary" style="width: 100%; border: 1px solid #0056b3; background: transparent; color: #0056b3; padding: 8px; border-radius: 5px; cursor: pointer;">Lihat Detail</button>
                 </div>
             </div>
-        </section>
+        </div>
+    </div>
+</section>
 
         <div id="loginModal" class="modal" style="display:none;">
             <div class="modal-content">
@@ -509,6 +485,7 @@
     </script>
 </body>
 </html>
+
 
 
 
