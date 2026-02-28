@@ -243,6 +243,9 @@
             <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f0f0f0; padding-bottom: 1rem; margin-bottom: 1rem;">
                 <h2 style="color: #002D5B;"><i class="fas fa-truck"></i> Panel Supplier</h2>
                 <span class="gov-badge" style="font-size: 1rem; background-color: #0056b3;">Area Supplier</span>
+                <button class="btn-primary" onclick="openModal('modalTambahBahan')" style="margin-bottom: 20px;">
+    <i class="fas fa-plus-circle"></i> Tambah Bahan Baku Baru
+</button>
             </div>
             
             <p style="color: #666; margin-bottom: 1.5rem;">Selamat datang! Kelola katalog bahan baku perusahaan Anda di sini.</p>
@@ -257,6 +260,52 @@
         </section>
 
     </main>
+<div id="modalTambahBahan" class="modal" style="display:none;">
+    <div class="modal-content" style="max-width: 500px;">
+        <span class="close" onclick="closeModal('modalTambahBahan')">&times;</span>
+        <h2 style="color: var(--primary-color); margin-bottom: 20px;"><i class="fas fa-box-open"></i> Tambah Bahan Baku</h2>
+        
+        <div style="text-align: left;">
+            <label style="font-weight: 600; font-size: 0.9rem;">Kategori Bahan:</label>
+            <select id="inputKategori" style="width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #ccc;">
+                <option value="">-- Pilih Kategori --</option>
+                <option value="logam">Logam Dasar</option>
+                <option value="kimia">Bahan Kimia</option>
+                <option value="non-logam">Material Non Logam</option>
+                <option value="lainnya">Bahan Lainnya</option>
+            </select>
+
+            <label style="font-weight: 600; font-size: 0.9rem;">Nama Bahan Baku:</label>
+            <input type="text" id="inputNamaBahan" placeholder="Contoh: Plat Besi Baja ASTM A36" style="width: 100%; padding: 10px; margin-bottom: 15px;">
+
+            <label style="font-weight: 600; font-size: 0.9rem;">Spesifikasi / Keterangan:</label>
+            <textarea id="inputSpesifikasi" rows="3" placeholder="Tuliskan spesifikasi detail barang..." style="width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #ccc; font-family: 'Poppins', sans-serif;"></textarea>
+
+            <div style="display: flex; gap: 15px; margin-bottom: 15px;">
+                <div style="flex: 1;">
+                    <label style="font-weight: 600; font-size: 0.9rem;">Jumlah Stok:</label>
+                    <input type="number" id="inputJumlah" placeholder="0" style="width: 100%; padding: 10px;">
+                </div>
+                <div style="flex: 1;">
+                    <label style="font-weight: 600; font-size: 0.9rem;">Satuan:</label>
+                    <input type="text" id="inputSatuan" placeholder="Kg, Ton, Liter, dll" style="width: 100%; padding: 10px;">
+                </div>
+            </div>
+
+            <label style="font-weight: 600; font-size: 0.9rem;">Lokasi Penyimpanan MatCen:</label>
+            <select id="inputLokasi" style="width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #ccc;">
+                <option value="">-- Pilih Lokasi --</option>
+                <option value="LIK Takaru (Tegal)">LIK Takaru (Tegal)</option>
+                <option value="SIKIM (Majalengka)">SIKIM (Majalengka)</option>
+            </select>
+
+            <label style="font-weight: 600; font-size: 0.9rem;">Dokumen Pendukung (Opsional):</label>
+            <input type="file" id="inputDokumen" accept=".pdf, .jpg, .jpeg, .png" style="width: 100%; padding: 10px; margin-bottom: 20px; border: 1px dashed var(--primary-color); border-radius: 8px;">
+
+            <button onclick="simpanBahanBaku()" id="btnSimpanBahan" class="btn-primary" style="width: 100%; font-size: 1.1rem; padding: 12px; border-radius: 25px;"><i class="fas fa-save"></i> Konfirmasi & Simpan</button>
+        </div>
+    </div>
+</div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
@@ -419,6 +468,71 @@
                 alert('Password salah atau email belum terdaftar!');
             }
         };
+                // ==========================================
+        // FITUR SUPPLIER: SIMPAN BAHAN BAKU
+        // ==========================================
+        window.simpanBahanBaku = async () => {
+            const kategori = document.getElementById('inputKategori').value;
+            const nama = document.getElementById('inputNamaBahan').value;
+            const spesifikasi = document.getElementById('inputSpesifikasi').value;
+            const jumlah = document.getElementById('inputJumlah').value;
+            const satuan = document.getElementById('inputSatuan').value;
+            const lokasi = document.getElementById('inputLokasi').value;
+            const fileInput = document.getElementById('inputDokumen');
+            const btnSimpan = document.getElementById('btnSimpanBahan');
+
+            // Validasi: Pastikan data wajib diisi
+            if(!kategori || !nama || !jumlah || !satuan || !lokasi) {
+                alert('Mohon lengkapi data yang wajib diisi (Kategori, Nama, Jumlah, Satuan, Lokasi)!');
+                return;
+            }
+
+            try {
+                // Ubah teks tombol saat loading
+                btnSimpan.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+                btnSimpan.disabled = true;
+
+                // Mengambil nama file jika ada yang diupload
+                let namaFile = "";
+                if(fileInput.files.length > 0) {
+                    namaFile = fileInput.files[0].name;
+                }
+
+                // Menyimpan data ke koleksi 'bahan_baku' di Firestore
+                await addDoc(collection(db, 'bahan_baku'), {
+                    kategori: kategori,
+                    nama_bahan: nama,
+                    spesifikasi: spesifikasi,
+                    jumlah: Number(jumlah), // Pastikan jumlah disimpan sebagai angka
+                    satuan: satuan,
+                    lokasi: lokasi,
+                    nama_dokumen: namaFile,
+                    supplier_email: auth.currentUser.email, // Mencatat siapa supplier yang input
+                    timestamp: serverTimestamp()
+                });
+
+                alert('Berhasil! Bahan baku telah ditambahkan ke sistem MatCen.');
+                closeModal('modalTambahBahan');
+                
+                // Bersihkan form setelah berhasil
+                document.getElementById('inputKategori').value = '';
+                document.getElementById('inputNamaBahan').value = '';
+                document.getElementById('inputSpesifikasi').value = '';
+                document.getElementById('inputJumlah').value = '';
+                document.getElementById('inputSatuan').value = '';
+                document.getElementById('inputLokasi').value = '';
+                fileInput.value = '';
+
+            } catch(error) {
+                console.error("Error menambah dokumen: ", error);
+                alert('Terjadi kesalahan saat menyimpan data: ' + error.message);
+            } finally {
+                // Kembalikan tombol seperti semula
+                btnSimpan.innerHTML = '<i class="fas fa-save"></i> Konfirmasi & Simpan';
+                btnSimpan.disabled = false;
+            }
+        };
+
 
                 window.logout = async () => {
             await signOut(auth);
@@ -550,6 +664,7 @@
     </script>
 </body>
 </html>
+
 
 
 
