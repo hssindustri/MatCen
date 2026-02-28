@@ -10,14 +10,25 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-   <header style="background: white; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+   <header style="background: white; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 100;">
     <div class="nav-brand" style="display: flex; align-items: center; gap: 10px;">
         <img src="logo-matcen.png" alt="MatCen Logo" style="height: 50px;"> 
     </div>
     
-    <div class="search-bar" style="border: 2px solid var(--primary-color); border-radius: 20px; padding: 5px 15px; display: flex; align-items: center;">
-        <i class="fas fa-search" style="color: var(--secondary-color); margin-right: 10px;"></i>
-        <input type="text" id="searchInput" placeholder="Cari Bahan Baku..." style="border: none; outline: none; width: 200px;">
+    <div style="display: flex; align-items: center; gap: 20px;">
+        <div class="search-bar" style="border: 2px solid var(--primary-color); border-radius: 20px; padding: 5px 15px; display: flex; align-items: center;">
+            <i class="fas fa-search" style="color: var(--secondary-color); margin-right: 10px;"></i>
+            <input type="text" id="searchInput" placeholder="Cari Bahan Baku..." style="border: none; outline: none; width: 200px;">
+        </div>
+
+        <ul class="nav-menu" style="display: flex; gap: 15px; align-items: center; list-style: none; margin: 0; padding: 0;">
+            <li id="navAdmin" style="display: none;"><a href="#adminDashboard" class="btn-primary" style="background-color: #F15A24; padding: 8px 15px; font-size: 0.85rem;"><i class="fas fa-user-check"></i> Panel Verifikasi</a></li>
+            <li id="navLogin" style="display: block; cursor: pointer; font-weight: 600; color: var(--primary-color);" onclick="openModal('loginModal')"><i class="fas fa-sign-in-alt"></i> Masuk</li>
+            <li id="navUser" class="nav-user" style="display:none; align-items: center; gap: 10px;">
+                <span id="userName" style="font-weight: 600; font-size: 0.85rem; color: var(--text-dark);"></span>
+                <button onclick="logout()" class="btn-secondary" style="padding: 5px 15px; font-size: 0.8rem; border-radius: 20px;"><i class="fas fa-sign-out-alt"></i> Keluar</button>
+            </li>
+        </ul>
     </div>
 </header>
 
@@ -79,6 +90,56 @@
                 </div>
             </div>
         </div>
+    </div>
+</section>
+<section id="kategori" class="section" style="padding: 4rem 5%; background-color: var(--bg-light);">
+    <div style="text-align: center; margin-bottom: 3rem;">
+        <h2 style="color: var(--primary-color); font-size: 2.2rem; margin-bottom: 10px;"><i class="fas fa-boxes"></i> Katalog Bahan Baku</h2>
+        <p style="color: var(--text-muted); font-size: 1rem;">Temukan material berkualitas dari supplier terverifikasi Kemenperin</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; max-width: 1200px; margin: 0 auto;">
+        
+        <div class="cat-card" data-cat="logam" style="background: white; border-radius: 20px; padding: 2rem 1.5rem; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.05); transition: transform 0.3s; cursor: pointer; border: 1px solid #eee;">
+            <div style="height: 80px; width: 80px; background: #e8f5e9; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+                <i class="fas fa-cubes" style="font-size: 2.5rem; color: var(--primary-color);"></i>
+            </div>
+            <h3 style="margin-bottom: 0.5rem; color: var(--text-dark);">Logam Dasar</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">Besi, baja, aluminium, dsb</p>
+            <span style="display: inline-block; background: #fdf5e6; color: #d48b00; padding: 5px 15px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; margin-bottom: 1.5rem;">15 Supplier</span>
+            <button class="btn-secondary" style="width: 100%; border-radius: 25px;">Lihat Detail</button>
+        </div>
+
+        <div class="cat-card" data-cat="kimia" style="background: white; border-radius: 20px; padding: 2rem 1.5rem; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.05); transition: transform 0.3s; cursor: pointer; border: 1px solid #eee;">
+            <div style="height: 80px; width: 80px; background: #fff3e0; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+                <i class="fas fa-flask" style="font-size: 2.5rem; color: #e65100;"></i>
+            </div>
+            <h3 style="margin-bottom: 0.5rem; color: var(--text-dark);">Bahan Kimia</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">Polimer, resin, cat, cairan</p>
+            <span style="display: inline-block; background: #e8f5e9; color: var(--primary-color); padding: 5px 15px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; margin-bottom: 1.5rem;">8 Supplier</span>
+            <button class="btn-secondary" style="width: 100%; border-radius: 25px;">Lihat Detail</button>
+        </div>
+
+        <div class="cat-card" data-cat="non-logam" style="background: white; border-radius: 20px; padding: 2rem 1.5rem; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.05); transition: transform 0.3s; cursor: pointer; border: 1px solid #eee;">
+            <div style="height: 80px; width: 80px; background: #e0f2f1; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+                <i class="fas fa-leaf" style="font-size: 2.5rem; color: #00897b;"></i>
+            </div>
+            <h3 style="margin-bottom: 0.5rem; color: var(--text-dark);">Material Non Logam</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">Plastik, karet, kaca, kulit</p>
+            <span style="display: inline-block; background: #fdf5e6; color: #d48b00; padding: 5px 15px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; margin-bottom: 1.5rem;">24 Supplier</span>
+            <button class="btn-secondary" style="width: 100%; border-radius: 25px;">Lihat Detail</button>
+        </div>
+
+        <div class="cat-card" data-cat="lainnya" style="background: white; border-radius: 20px; padding: 2rem 1.5rem; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.05); transition: transform 0.3s; cursor: pointer; border: 1px solid #eee;">
+            <div style="height: 80px; width: 80px; background: #fce4ec; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+                <i class="fas fa-microchip" style="font-size: 2.5rem; color: #c2185b;"></i>
+            </div>
+            <h3 style="margin-bottom: 0.5rem; color: var(--text-dark);">Bahan Lainnya</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">Komponen elektronik, dll</p>
+            <span style="display: inline-block; background: #e8f5e9; color: var(--primary-color); padding: 5px 15px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; margin-bottom: 1.5rem;">12 Supplier</span>
+            <button class="btn-secondary" style="width: 100%; border-radius: 25px;">Lihat Detail</button>
+        </div>
+
     </div>
 </section>
 
@@ -359,14 +420,14 @@
             }
         };
 
-        window.logout = async () => {
+                window.logout = async () => {
             await signOut(auth);
             alert('Anda telah keluar.');
-            document.getElementById('adminDashboard').style.display = 'none';
-            document.getElementById('supplierDashboard').style.display = 'none';
-            if(document.getElementById('navAdmin')) document.getElementById('navAdmin').style.display = 'none'; 
-            document.getElementById('navLogin').style.display = 'block';
-            document.getElementById('navUser').style.display = 'none';
+            document.getElementById('adminDashboard')?.style && (document.getElementById('adminDashboard').style.display = 'none');
+            document.getElementById('supplierDashboard')?.style && (document.getElementById('supplierDashboard').style.display = 'none');
+            document.getElementById('navAdmin')?.style && (document.getElementById('navAdmin').style.display = 'none'); 
+            document.getElementById('navLogin')?.style && (document.getElementById('navLogin').style.display = 'block');
+            document.getElementById('navUser')?.style && (document.getElementById('navUser').style.display = 'none');
         };
 
         window.loadPending = async () => {
@@ -424,10 +485,10 @@
         };
 
         onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                document.getElementById('navLogin').style.display = 'none';
-                document.getElementById('navUser').style.display = 'block';
-                document.getElementById('userName').textContent = user.email;
+                        if (user) {
+                document.getElementById('navLogin')?.style && (document.getElementById('navLogin').style.display = 'none');
+                document.getElementById('navUser')?.style && (document.getElementById('navUser').style.display = 'flex');
+                if(document.getElementById('userName')) document.getElementById('userName').textContent = user.email;
 
                 const userDoc = await getDoc(doc(db, 'users', user.uid));
                 if (userDoc.exists()) {
@@ -443,9 +504,13 @@
                         if (judulPanel) {
                             if(data.tipe === 'admin') {
                                 judulPanel.innerHTML = '<i class="fas fa-user-shield"></i> Panel Verifikasi Master (Admin)';
-                            } else {
-                                judulPanel.innerHTML = '<i class="fas fa-user-shield"></i> Panel Verifikasi IKM (Pembina)';
-                            }
+                                        } else {
+                document.getElementById('navLogin')?.style && (document.getElementById('navLogin').style.display = 'block');
+                document.getElementById('navUser')?.style && (document.getElementById('navUser').style.display = 'none');
+                document.getElementById('adminDashboard')?.style && (document.getElementById('adminDashboard').style.display = 'none');
+                document.getElementById('supplierDashboard')?.style && (document.getElementById('supplierDashboard').style.display = 'none');
+                document.getElementById('navAdmin')?.style && (document.getElementById('navAdmin').style.display = 'none');
+            }
                         }
                         
                         if(document.getElementById('navAdmin')) {
@@ -485,6 +550,7 @@
     </script>
 </body>
 </html>
+
 
 
 
