@@ -220,8 +220,8 @@
         window.openModal = (modalId) => { document.getElementById(modalId).style.display = "block"; };
         window.closeModal = (modalId) => { document.getElementById(modalId).style.display = "none"; };
 
-        document.getElementById('linkLogin').addEventListener('click', () => openModal('loginModal'));
-        document.getElementById('btnRegisterHero').addEventListener('click', () => openModal('registerModal'));
+                document.getElementById('linkLogin')?.addEventListener('click', () => openModal('loginModal'));
+        document.getElementById('btnRegisterHero')?.addEventListener('click', () => openModal('registerModal'));
 
         document.getElementById('tipeAkun').addEventListener('change', () => {
             const tipe = document.getElementById('tipeAkun').value;
@@ -485,6 +485,7 @@
     </script>
 </body>
 </html>
+
 
 
 
