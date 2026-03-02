@@ -598,72 +598,71 @@
             }
         };
 
-        onAuthStateChanged(auth, async (user) => {
-                        if (user) {
-                document.getElementById('navLogin')?.style && (document.getElementById('navLogin').style.display = 'none');
-                document.getElementById('navUser')?.style && (document.getElementById('navUser').style.display = 'flex');
-                if(document.getElementById('userName')) document.getElementById('userName').textContent = user.email;
+onAuthStateChanged(auth, async (user) => {
+    if (user) {
+        // Tampilkan nav bar dasar untuk user login
+        document.getElementById('navLogin')?.style && (document.getElementById('navLogin').style.display = 'none');
+        document.getElementById('navUser')?.style && (document.getElementById('navUser').style.display = 'flex');
+        if(document.getElementById('userName')) document.getElementById('userName').textContent = user.email;
 
-                const userDoc = await getDoc(doc(db, 'users', user.uid));
-                if (userDoc.exists()) {
-                    const data = userDoc.data();
-                    
-                    // --- TAMPILAN ADMIN / PEMBINA ---
-                    if ((data.tipe === 'admin' || data.tipe === 'pembina') && data.verified === true) {
-                        window.currentUserRole = data.tipe; 
-                        document.getElementById('adminDashboard').style.display = 'block';
-                        document.getElementById('supplierDashboard').style.display = 'none';
-                        
-                        const judulPanel = document.querySelector('#adminDashboard h2');
-                        if (judulPanel) {
-                            if(data.tipe === 'admin') {
-                                judulPanel.innerHTML = '<i class="fas fa-user-shield"></i> Panel Verifikasi Master (Admin)';
-                                        } else {
-                document.getElementById('navLogin')?.style && (document.getElementById('navLogin').style.display = 'block');
-                document.getElementById('navUser')?.style && (document.getElementById('navUser').style.display = 'none');
-                document.getElementById('adminDashboard')?.style && (document.getElementById('adminDashboard').style.display = 'none');
-                document.getElementById('supplierDashboard')?.style && (document.getElementById('supplierDashboard').style.display = 'none');
-                document.getElementById('navAdmin')?.style && (document.getElementById('navAdmin').style.display = 'none');
-            }
-                        }
-                        
-                        if(document.getElementById('navAdmin')) {
-                            document.getElementById('navAdmin').style.display = 'inline-block';
-                        }
-                        
-                        loadPending(); 
-                    } 
-                    // --- TAMPILAN SUPPLIER ---
-                    else if (data.tipe === 'supplier' && data.verified === true) {
-                        window.currentUserRole = 'supplier';
-                        document.getElementById('supplierDashboard').style.display = 'block';
-                        document.getElementById('adminDashboard').style.display = 'none';
-                        if(document.getElementById('navAdmin')) document.getElementById('navAdmin').style.display = 'none';
-                    } 
-                    // --- TAMPILAN INDUSTRI ---
-                    else if (data.tipe === 'industri' && data.verified === true) {
-                        window.currentUserRole = 'industri';
-                        document.getElementById('adminDashboard').style.display = 'none';
-                        document.getElementById('supplierDashboard').style.display = 'none';
-                        if(document.getElementById('navAdmin')) document.getElementById('navAdmin').style.display = 'none';
-                    } 
-                    // --- JIKA PENDING ---
-                    else {
-                        alert('Akun Anda masih berstatus PENDING. Silakan tunggu verifikasi Admin.');
-                        window.logout(); 
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        if (userDoc.exists()) {
+            const data = userDoc.data();
+            
+            // --- TAMPILAN ADMIN / PEMBINA ---
+            if ((data.tipe === 'admin' || data.tipe === 'pembina') && data.verified === true) {
+                window.currentUserRole = data.tipe; 
+                document.getElementById('adminDashboard').style.display = 'block';
+                document.getElementById('supplierDashboard').style.display = 'none';
+                
+                const judulPanel = document.querySelector('#adminDashboard h2');
+                if (judulPanel) {
+                    if(data.tipe === 'admin') {
+                        judulPanel.innerHTML = '<i class="fas fa-user-shield"></i> Panel Verifikasi Master (Admin)';
+                    } else {
+                        judulPanel.innerHTML = '<i class="fas fa-user-check"></i> Panel Verifikasi (Pembina)';
                     }
                 }
-            } else {
-                document.getElementById('navLogin').style.display = 'block';
-                document.getElementById('navUser').style.display = 'none';
+                
+                if(document.getElementById('navAdmin')) {
+                    document.getElementById('navAdmin').style.display = 'inline-block';
+                }
+                
+                loadPending(); 
+            } 
+            // --- TAMPILAN SUPPLIER ---
+            else if (data.tipe === 'supplier' && data.verified === true) {
+                window.currentUserRole = 'supplier';
+                document.getElementById('supplierDashboard').style.display = 'block';
+                document.getElementById('adminDashboard').style.display = 'none';
+                if(document.getElementById('navAdmin')) document.getElementById('navAdmin').style.display = 'none';
+            } 
+            // --- TAMPILAN INDUSTRI ---
+            else if (data.tipe === 'industri' && data.verified === true) {
+                window.currentUserRole = 'industri';
                 document.getElementById('adminDashboard').style.display = 'none';
                 document.getElementById('supplierDashboard').style.display = 'none';
                 if(document.getElementById('navAdmin')) document.getElementById('navAdmin').style.display = 'none';
+            } 
+            // --- JIKA PENDING ---
+            else {
+                alert('Akun Anda masih berstatus PENDING. Silakan tunggu verifikasi Admin.');
+                window.logout(); 
             }
-        });
+        }
+    } else {
+        // --- JIKA TIDAK ADA USER LOGIN ---
+        document.getElementById('navLogin').style.display = 'block';
+        document.getElementById('navUser').style.display = 'none';
+        document.getElementById('adminDashboard').style.display = 'none';
+        document.getElementById('supplierDashboard').style.display = 'none';
+        if(document.getElementById('navAdmin')) document.getElementById('navAdmin').style.display = 'none';
+    }
+});
     </script>
 </body>
 </html>
+
 
 
 
