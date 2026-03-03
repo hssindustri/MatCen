@@ -664,45 +664,85 @@
 
 onAuthStateChanged(auth, async (user) => {
     if (user) {
+        // Panggil data katalog jika ada
         if (window.muatDaftarBahan) window.muatDaftarBahan();
         
-        document.getElementById('navLogin').style.display = 'none';
-        document.getElementById('navUser').style.display = 'flex';
-        document.getElementById('userName').textContent = user.email;
+        // Ubah tampilan Navigasi Atas
+        if(document.getElementById('navLogin')) document.getElementById('navLogin').style.display = 'none';
+        if(document.getElementById('navUser')) document.getElementById('navUser').style.display = 'flex';
+        if(document.getElementById('userName')) document.getElementById('userName').textContent = user.email;
 
-        // PERBAIKAN: Gunakan user.uid, bukan user.email
-        const userDoc = await getDoc(doc(db, 'users', user.uid)); 
-        
-        if (userDoc.exists()) {
-            const data = userDoc.data();
+        try {
+            // PERBAIKAN KRUSIAL: Panggil database menggunakan user.uid
+            const userDoc = await getDoc(doc(db, 'users', user.uid));
             
-            // Logika Akses Panel Verifikasi (Admin & Pembina)
-            if (data.role === 'admin' || data.tipe === 'pembina') {
-                window.currentUserRole = data.role === 'admin' ? 'admin' : 'pembina';
+            if (userDoc.exists()) {
+                const data = userDoc.data();
                 
-                // Munculkan Dashboard & Navigasi Admin
-                document.getElementById('adminDashboard').style.display = 'block';
-                document.getElementById('navAdmin').style.display = 'block';
-                
-                // Panggil fungsi muat data pending
-                window.loadPending(); 
-            } 
-            
-            // Logika Supplier
-            if (data.tipe === 'supplier' && data.verified === true) {
-                document.getElementById('supplierDashboard').style.display = 'block';
+                // --- TAMPILAN ADMIN & PEMBINA (Panel Verifikasi) ---
+                // Admin selalu bisa masuk, Pembina bisa masuk jika sudah diverifikasi admin
+                if (data.role === 'admin' || (data.tipe === 'pembina' && data.verified === true)) {
+                    window.currentUserRole = data.role === 'admin' ? 'admin' : 'pembina';
+                    
+                    document.getElementById('adminDashboard').style.display = 'block';
+                    document.getElementById('supplierDashboard').style.display = 'none';
+                    if(document.getElementById('navAdmin')) document.getElementById('navAdmin').style.display = 'block';
+                    
+                    // Muat daftar akun yang menunggu verifikasi
+                    if(window.loadPending) window.loadPending();
+                } 
+                // --- TAMPILAN SUPPLIER ---
+                else if (data.tipe === 'supplier' && data.verified === true) {
+                    window.currentUserRole = 'supplier';
+                    document.getElementById('supplierDashboard').style.display = 'block';
+                    document.getElementById('adminDashboard').style.display = 'none';
+                    if(document.getElementById('navAdmin')) document.getElementById('navAdmin').style.display = 'none';
+                } 
+                // --- TAMPILAN INDUSTRI ---
+                else if (data.tipe === 'industri' && data.verified === true) {
+                    window.currentUserRole = 'industri';
+                    document.getElementById('adminDashboard').style.display = 'none';
+                    document.getElementById('supplierDashboard').style.display = 'none';
+                    if(document.getElementById('navAdmin')) document.getElementById('navAdmin').style.display = 'none';
+                } 
+                // --- JIKA AKUN BARU DAFTAR (PENDING) ---
+                else {
+                    alert('Akun Anda masih berstatus PENDING. Silakan tunggu verifikasi.');
+                    window.logout(); 
+                }
+            } else {
+                alert('Gagal login: Data profil tidak ditemukan di database.');
+                window.logout();
             }
+        } catch (error) {
+            console.error("Error mengambil data user:", error);
+            alert("Terjadi kesalahan saat memeriksa hak akses.");
         }
     } else {
-        // Logika Logout (Sembunyikan semua panel)
-        document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
-        document.getElementById('navLogin').style.display = 'block';
-        document.getElementById('navUser').style.display = 'none';
+        // --- KONDISI SAAT LOGOUT / BELUM LOGIN ---
+        if(document.getElementById('navLogin')) document.getElementById('navLogin').style.display = 'block';
+        if(document.getElementById('navUser')) document.getElementById('navUser').style.display = 'none';
+        if(document.getElementById('adminDashboard')) document.getElementById('adminDashboard').style.display = 'none';
+        if(document.getElementById('supplierDashboard')) document.getElementById('supplierDashboard').style.display = 'none';
+        if(document.getElementById('navAdmin')) document.getElementById('navAdmin').style.display = 'none';
+        
+        // Kunci Katalog
+        const wadahKatalog = document.getElementById('katalogBahanBakuContainer');
+        if (wadahKatalog) {
+            wadahKatalog.innerHTML = `
+                <div style="grid-column: 1 / -1; text-align: center; padding: 50px 20px; background: #fff3e0; border-radius: 15px; border: 2px dashed #ffb74d;">
+                    <i class="fas fa-lock" style="font-size: 3rem; color: #e65100; margin-bottom: 15px;"></i>
+                    <h3 style="color: #e65100; font-size: 1.5rem; margin-bottom: 10px;">Katalog Terkunci</h3>
+                    <p style="color: var(--text-dark); font-size: 1rem;">Silakan <b>Log In</b> atau <b>Daftar Akun</b> terlebih dahulu untuk melihat detail bahan baku.</p>
+                </div>
+            `;
+        }
     }
 });
     </script>
 </body>
 </html>
+
 
 
 
