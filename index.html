@@ -664,48 +664,40 @@
 
 onAuthStateChanged(auth, async (user) => {
     if (user) {
-        // Panggil data katalog jika ada
         if (window.muatDaftarBahan) window.muatDaftarBahan();
         
-        // Ubah tampilan Navigasi Atas
         if(document.getElementById('navLogin')) document.getElementById('navLogin').style.display = 'none';
         if(document.getElementById('navUser')) document.getElementById('navUser').style.display = 'flex';
         if(document.getElementById('userName')) document.getElementById('userName').textContent = user.email;
 
         try {
-            // PERBAIKAN KRUSIAL: Panggil database menggunakan user.uid
             const userDoc = await getDoc(doc(db, 'users', user.uid));
             
             if (userDoc.exists()) {
                 const data = userDoc.data();
                 
-                // --- TAMPILAN ADMIN & PEMBINA (Panel Verifikasi) ---
-                // Admin selalu bisa masuk, Pembina bisa masuk jika sudah diverifikasi admin
-                if (data.role === 'admin' || (data.tipe === 'pembina' && data.verified === true)) {
-                    window.currentUserRole = data.role === 'admin' ? 'admin' : 'pembina';
+                // PERBAIKAN DI SINI: Ubah data.role menjadi data.tipe agar sesuai database Anda
+                if (data.tipe === 'admin' || (data.tipe === 'pembina' && data.verified === true)) {
+                    window.currentUserRole = data.tipe === 'admin' ? 'admin' : 'pembina';
                     
                     document.getElementById('adminDashboard').style.display = 'block';
                     document.getElementById('supplierDashboard').style.display = 'none';
                     if(document.getElementById('navAdmin')) document.getElementById('navAdmin').style.display = 'block';
                     
-                    // Muat daftar akun yang menunggu verifikasi
                     if(window.loadPending) window.loadPending();
                 } 
-                // --- TAMPILAN SUPPLIER ---
                 else if (data.tipe === 'supplier' && data.verified === true) {
                     window.currentUserRole = 'supplier';
                     document.getElementById('supplierDashboard').style.display = 'block';
                     document.getElementById('adminDashboard').style.display = 'none';
                     if(document.getElementById('navAdmin')) document.getElementById('navAdmin').style.display = 'none';
                 } 
-                // --- TAMPILAN INDUSTRI ---
                 else if (data.tipe === 'industri' && data.verified === true) {
                     window.currentUserRole = 'industri';
                     document.getElementById('adminDashboard').style.display = 'none';
                     document.getElementById('supplierDashboard').style.display = 'none';
                     if(document.getElementById('navAdmin')) document.getElementById('navAdmin').style.display = 'none';
                 } 
-                // --- JIKA AKUN BARU DAFTAR (PENDING) ---
                 else {
                     alert('Akun Anda masih berstatus PENDING. Silakan tunggu verifikasi.');
                     window.logout(); 
@@ -716,17 +708,15 @@ onAuthStateChanged(auth, async (user) => {
             }
         } catch (error) {
             console.error("Error mengambil data user:", error);
-            alert("Terjadi kesalahan saat memeriksa hak akses.");
         }
     } else {
-        // --- KONDISI SAAT LOGOUT / BELUM LOGIN ---
+        // ... (Kondisi saat logout tetap sama seperti sebelumnya) ...
         if(document.getElementById('navLogin')) document.getElementById('navLogin').style.display = 'block';
         if(document.getElementById('navUser')) document.getElementById('navUser').style.display = 'none';
         if(document.getElementById('adminDashboard')) document.getElementById('adminDashboard').style.display = 'none';
         if(document.getElementById('supplierDashboard')) document.getElementById('supplierDashboard').style.display = 'none';
         if(document.getElementById('navAdmin')) document.getElementById('navAdmin').style.display = 'none';
         
-        // Kunci Katalog
         const wadahKatalog = document.getElementById('katalogBahanBakuContainer');
         if (wadahKatalog) {
             wadahKatalog.innerHTML = `
@@ -742,6 +732,7 @@ onAuthStateChanged(auth, async (user) => {
     </script>
 </body>
 </html>
+
 
 
 
