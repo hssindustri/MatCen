@@ -661,7 +661,11 @@
         };
 
 onAuthStateChanged(auth, async (user) => {
-    if (user) {
+            if (user) {
+                // --- MEMANGGIL KATALOG KARENA USER SUDAH LOGIN ---
+                if (window.muatDaftarBahan) window.muatDaftarBahan();
+                // (Biarkan kode eksisting di bawahnya tetap ada)
+                document.getElementById('navLogin')?.style && (document.getElementById('navLogin').style.display = 'none');
         // Tampilkan nav bar dasar untuk user login
         document.getElementById('navLogin')?.style && (document.getElementById('navLogin').style.display = 'none');
         document.getElementById('navUser')?.style && (document.getElementById('navUser').style.display = 'flex');
@@ -720,10 +724,29 @@ onAuthStateChanged(auth, async (user) => {
         document.getElementById('supplierDashboard').style.display = 'none';
         if(document.getElementById('navAdmin')) document.getElementById('navAdmin').style.display = 'none';
     }
-});
+} else {
+                // (Biarkan kode eksisting tetap ada)
+                document.getElementById('navLogin')?.style && (document.getElementById('navLogin').style.display = 'block');
+                document.getElementById('navUser')?.style && (document.getElementById('navUser').style.display = 'none');
+                // ... (kode lainnya) ...
+                
+                // --- MENGUNCI KATALOG KARENA BELUM LOGIN ---
+                const wadahKatalog = document.getElementById('katalogBahanBakuContainer');
+                if (wadahKatalog) {
+                    wadahKatalog.innerHTML = `
+                        <div style="grid-column: 1 / -1; text-align: center; padding: 50px 20px; background: #fff3e0; border-radius: 15px; border: 2px dashed #ffb74d;">
+                            <i class="fas fa-lock" style="font-size: 3rem; color: #e65100; margin-bottom: 15px;"></i>
+                            <h3 style="color: #e65100; font-size: 1.5rem; margin-bottom: 10px;">Katalog Terkunci</h3>
+                            <p style="color: var(--text-dark); font-size: 1rem;">Silakan <b>Log In</b> atau <b>Daftar Akun</b> terlebih dahulu untuk melihat detail dan ketersediaan bahan baku.</p>
+                        </div>
+                    `;
+                }
+            }
+        });
     </script>
 </body>
 </html>
+
 
 
 
