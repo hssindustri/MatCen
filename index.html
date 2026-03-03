@@ -477,13 +477,14 @@
                 // ==========================================
         // FITUR SUPPLIER: SIMPAN BAHAN BAKU
         // ==========================================
-        window.simpanBahanBaku = async () => {
+       window.simpanBahanBaku = async () => {
     const kategori = document.getElementById('inputKategori').value;
     const nama = document.getElementById('inputNamaBahan').value;
     const spesifikasi = document.getElementById('inputSpesifikasi').value;
     const jumlah = document.getElementById('inputJumlah').value;
     const satuan = document.getElementById('inputSatuan').value;
     const lokasi = document.getElementById('inputLokasi').value;
+    
     const fileInput = document.getElementById('inputDokumen');
     const btnSimpan = document.getElementById('btnSimpanBahan');
 
@@ -493,33 +494,51 @@
     }
 
     try {
-        btnSimpan.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan Data...';
+        btnSimpan.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
         btnSimpan.disabled = true;
 
+        let urlDokumenDrive = "";
         let namaFile = "";
-        let urlDokumen = ""; // Variabel baru untuk menyimpan link file
 
-        // LOGIKA BARU: Jika ada file yang diupload
-        if(fileInput.files.length > 0) {
+        // JIKA SUPPLIER MENGUPLOAD FILE
+        if (fileInput.files.length > 0) {
             const file = fileInput.files[0];
             namaFile = file.name;
+            btnSimpan.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengunggah ke Google Drive...';
             
-            btnSimpan.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengunggah Dokumen...';
-            
-            // Membuat referensi tempat file disimpan di Firebase Storage (folder: dokumen_bahan)
-            const namaFileUnik = Date.now() + '_' + namaFile;
-            const storageRef = ref(storage, 'dokumen_bahan/' + namaFileUnik);
+            // 1. Ubah file jadi format Base64 agar bisa dikirim
+            const getBase64 = (file) => new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result.split(',')[1]);
+                reader.onerror = error => reject(error);
+            });
+            const base64Data = await getBase64(file);
 
-            // Proses upload file fisik
-            const snapshot = await uploadBytes(storageRef, file);
+            // 2. PASTE "WEB APP URL" DARI GOOGLE APPS SCRIPT DI SINI
+            const scriptURL = https://script.google.com/macros/s/AKfycbwPdwEyPIyWvbSQBWB1an_EgSNBDiPFPRo0InmN9WO9_WFhC1LqUEiP9hipl4Q2YTul/exec 
             
-            // Mendapatkan link/URL untuk mendownload file tersebut nanti
-            urlDokumen = await getDownloadURL(snapshot.ref);
+            // 3. Kirim ke Google Drive
+            const responseUpload = await fetch(scriptURL, {
+                method: 'POST',
+                body: JSON.stringify({
+                    fileName: file.name,
+                    mimeType: file.type,
+                    base64: base64Data
+                })
+            });
+            
+            const resultUpload = await responseUpload.json();
+            if(resultUpload.status === "success") {
+                urlDokumenDrive = resultUpload.url; // Ini link file yang masuk di Drive Anda!
+            } else {
+                throw new Error("Gagal mengunggah ke Drive");
+            }
         }
 
         btnSimpan.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan ke Database...';
 
-        // Menyimpan data ke koleksi 'bahan_baku' di Firestore
+        // MENYIMPAN DATA + LINK DRIVE KE FIREBASE
         await addDoc(collection(db, 'bahan_baku'), {
             kategori: kategori,
             nama_bahan: nama,
@@ -528,12 +547,12 @@
             satuan: satuan,
             lokasi: lokasi,
             nama_dokumen: namaFile,
-            url_dokumen: urlDokumen, // Menyimpan link file ke database
+            url_dokumen: urlDokumenDrive, // Link Google Drive tersimpan di sini
             supplier_email: auth.currentUser.email,
             timestamp: serverTimestamp()
         });
 
-        alert('Berhasil! Bahan baku dan dokumen telah ditambahkan ke sistem MatCen.');
+        alert('Berhasil! Bahan baku dan dokumen telah ditambahkan.');
         closeModal('modalTambahBahan');
         
         // Bersihkan form
@@ -545,12 +564,11 @@
         document.getElementById('inputLokasi').value = '';
         fileInput.value = '';
 
-        // Muat ulang katalog agar barang baru langsung muncul
         if (window.muatDaftarBahan) window.muatDaftarBahan();
 
     } catch(error) {
-        console.error("Error menambah dokumen: ", error);
-        alert('Terjadi kesalahan saat menyimpan data: ' + error.message);
+        console.error("Error: ", error);
+        alert('Terjadi kesalahan: ' + error.message);
     } finally {
         btnSimpan.innerHTML = '<i class="fas fa-save"></i> Konfirmasi & Simpan';
         btnSimpan.disabled = false;
@@ -753,6 +771,7 @@ onAuthStateChanged(auth, async (user) => {
     </script>
 </body>
 </html>
+
 
 
 
