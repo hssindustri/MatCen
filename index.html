@@ -606,47 +606,49 @@
             document.getElementById('navUser')?.style && (document.getElementById('navUser').style.display = 'none');
         };
 
-        window.loadPending = async () => {
-            const listPending = document.getElementById("pendingList");
-            if (!listPending) return;
-            listPending.innerHTML = "Memuat data..."; 
-            try {
-                let q;
-                if (window.currentUserRole === 'admin') {
-                    q = query(collection(db, "users"), where("status", "==", "pending"));
-                } else if (window.currentUserRole === 'pembina') {
-                    q = query(collection(db, "users"), where("status", "==", "pending"), where("tipe", "==", "industri"));
-                } else {
-                    return; 
-                }
+       window.loadPending = async () => {
+    const listPending = document.getElementById("pendingList");
+    if (!listPending) return;
+    
+    try {
+        let q;
+        if (window.currentUserRole === 'admin') {
+            // Admin melihat semua yang berstatus pending
+            q = query(collection(db, "users"), where("status", "==", "pending"));
+        } else if (window.currentUserRole === 'pembina') {
+            // Pembina HANYA melihat industri yang pending
+            q = query(collection(db, "users"), 
+                      where("status", "==", "pending"), 
+                      where("tipe", "==", "industri"));
+        }
 
-                const querySnapshot = await getDocs(q);
-                listPending.innerHTML = ""; 
-                
-                if (querySnapshot.empty) {
-                    listPending.innerHTML = "<li>Tidak ada akun yang menunggu verifikasi.</li>";
-                    return;
-                }
+        const querySnapshot = await getDocs(q);
+        listPending.innerHTML = ""; 
+        
+        if (querySnapshot.empty) {
+            listPending.innerHTML = "<li>Tidak ada akun yang menunggu verifikasi.</li>";
+            return;
+        }
 
-                querySnapshot.forEach((docSnap) => {
-                    const data = docSnap.data();
-                    const namaTampil = data.tipe === 'pembina' ? data.nama : data.namaPerusahaan;
-                    const entitas = data.tipe === 'pembina' ? data.instansi : `NIB: ${data.nib}`;
-                    
-                    listPending.innerHTML += 
-                        '<li style="background: white; margin-bottom: 10px; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center;">' +
-                            '<div>' +
-                                '<strong>' + (namaTampil || 'Tanpa Nama') + '</strong> <span class="gov-badge">' + (data.tipe ? data.tipe.toUpperCase() : '') + '</span><br>' +
-                                '<small>' + data.email + ' | ' + entitas + '</small>' +
-                            '</div>' +
-                            '<button class="btn-primary" style="padding: 8px 15px; font-size: 14px;" onclick="approve(\'' + docSnap.id + '\')">Verifikasi Akun</button>' +
-                        '</li>';
-                });
-            } catch (error) {
-                console.error("Gagal memuat data verifikasi: ", error);
-                if (listPending) listPending.innerHTML = "<li>Gagal memuat data. Jika Anda Pembina, cek Index Firebase.</li>";
-            }
-        };
+        querySnapshot.forEach((docSnap) => {
+            const data = docSnap.data();
+            // Logika tampilan nama berdasarkan tipe
+            const namaTampil = data.tipe === 'pembina' ? data.nama : data.namaPerusahaan;
+            
+            listPending.innerHTML += `
+                <li style="background: #f8f9fa; margin-bottom: 10px; padding: 15px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <strong>${namaTampil || 'Tanpa Nama'}</strong> 
+                        <span class="gov-badge">${data.tipe.toUpperCase()}</span><br>
+                        <small>${data.email}</small>
+                    </div>
+                    <button class="btn-primary" onclick="approve('${docSnap.id}')">Verifikasi</button>
+                </li>`;
+        });
+    } catch (error) {
+        console.error("Error loadPending:", error);
+    }
+};
 
         window.approve = async (uid) => {
             if(confirm('Apakah Anda yakin ingin menyetujui akun ini?')) {
@@ -701,6 +703,7 @@ onAuthStateChanged(auth, async (user) => {
     </script>
 </body>
 </html>
+
 
 
 
