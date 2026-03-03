@@ -661,71 +661,47 @@
         };
 
 onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                // --- MEMANGGIL KATALOG KARENA USER SUDAH LOGIN ---
-                if (window.muatDaftarBahan) window.muatDaftarBahan();
-                
-                document.getElementById('navLogin')?.style && (document.getElementById('navLogin').style.display = 'none');
-                document.getElementById('navUser')?.style && (document.getElementById('navUser').style.display = 'flex');
-                if(document.getElementById('userName')) document.getElementById('userName').textContent = user.email;
+    if (user) {
+        if (window.muatDaftarBahan) window.muatDaftarBahan();
+        
+        document.getElementById('navLogin').style.display = 'none';
+        document.getElementById('navUser').style.display = 'flex';
+        document.getElementById('userName').textContent = user.email;
 
-                // Cek Role di Firestore
-                const userDoc = await getDoc(doc(db, 'users', user.email));
-                if (userDoc.exists()) {
-                    const data = userDoc.data();
-                    
-                    // --- TAMPILAN ADMIN ---
-                    if (data.role === 'admin') {
-                        window.currentUserRole = 'admin';
-                        document.getElementById('adminDashboard').style.display = 'block';
-                        document.getElementById('supplierDashboard').style.display = 'none';
-                        if(document.getElementById('navAdmin')) document.getElementById('navAdmin').style.display = 'block';
-                        muatDataPending();
-                    } 
-                    // --- TAMPILAN SUPPLIER ---
-                    else if (data.tipe === 'supplier' && data.verified === true) {
-                        window.currentUserRole = 'supplier';
-                        document.getElementById('supplierDashboard').style.display = 'block';
-                        document.getElementById('adminDashboard').style.display = 'none';
-                        if(document.getElementById('navAdmin')) document.getElementById('navAdmin').style.display = 'none';
-                    } 
-                    // --- TAMPILAN INDUSTRI ---
-                    else if (data.tipe === 'industri' && data.verified === true) {
-                        window.currentUserRole = 'industri';
-                        document.getElementById('adminDashboard').style.display = 'none';
-                        document.getElementById('supplierDashboard').style.display = 'none';
-                        if(document.getElementById('navAdmin')) document.getElementById('navAdmin').style.display = 'none';
-                    } 
-                    // --- JIKA PENDING ---
-                    else {
-                        alert('Akun Anda masih berstatus PENDING. Silakan tunggu verifikasi Admin.');
-                        window.logout(); 
-                    }
-                }
-            } else {
-                // --- KONDISI SAAT BELUM LOGIN ---
-                document.getElementById('navLogin')?.style && (document.getElementById('navLogin').style.display = 'block');
-                document.getElementById('navUser')?.style && (document.getElementById('navUser').style.display = 'none');
-                document.getElementById('adminDashboard')?.style && (document.getElementById('adminDashboard').style.display = 'none');
-                document.getElementById('supplierDashboard')?.style && (document.getElementById('supplierDashboard').style.display = 'none');
-                document.getElementById('navAdmin')?.style && (document.getElementById('navAdmin').style.display = 'none');
+        // PERBAIKAN: Gunakan user.uid, bukan user.email
+        const userDoc = await getDoc(doc(db, 'users', user.uid)); 
+        
+        if (userDoc.exists()) {
+            const data = userDoc.data();
+            
+            // Logika Akses Panel Verifikasi (Admin & Pembina)
+            if (data.role === 'admin' || data.tipe === 'pembina') {
+                window.currentUserRole = data.role === 'admin' ? 'admin' : 'pembina';
                 
-                // --- MENGUNCI KATALOG KARENA BELUM LOGIN ---
-                const wadahKatalog = document.getElementById('katalogBahanBakuContainer');
-                if (wadahKatalog) {
-                    wadahKatalog.innerHTML = `
-                        <div style="grid-column: 1 / -1; text-align: center; padding: 50px 20px; background: #fff3e0; border-radius: 15px; border: 2px dashed #ffb74d;">
-                            <i class="fas fa-lock" style="font-size: 3rem; color: #e65100; margin-bottom: 15px;"></i>
-                            <h3 style="color: #e65100; font-size: 1.5rem; margin-bottom: 10px;">Katalog Terkunci</h3>
-                            <p style="color: var(--text-dark); font-size: 1rem;">Silakan <b>Log In</b> atau <b>Daftar Akun</b> terlebih dahulu untuk melihat detail dan ketersediaan bahan baku.</p>
-                        </div>
-                    `;
-                }
+                // Munculkan Dashboard & Navigasi Admin
+                document.getElementById('adminDashboard').style.display = 'block';
+                document.getElementById('navAdmin').style.display = 'block';
+                
+                // Panggil fungsi muat data pending
+                window.loadPending(); 
+            } 
+            
+            // Logika Supplier
+            if (data.tipe === 'supplier' && data.verified === true) {
+                document.getElementById('supplierDashboard').style.display = 'block';
             }
-        });
+        }
+    } else {
+        // Logika Logout (Sembunyikan semua panel)
+        document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
+        document.getElementById('navLogin').style.display = 'block';
+        document.getElementById('navUser').style.display = 'none';
+    }
+});
     </script>
 </body>
 </html>
+
 
 
 
