@@ -732,6 +732,7 @@ onAuthStateChanged(auth, async (user) => {
             
             if (userDoc.exists()) {
                 const data = userDoc.data();
+                let isValidUser = false; // Penanda apakah user ini valid atau pending
                 
                 // PERBAIKAN DI SINI: Ubah data.role menjadi data.tipe agar sesuai database Anda
                 if (data.tipe === 'admin' || (data.tipe === 'pembina' && data.verified === true)) {
@@ -742,25 +743,33 @@ onAuthStateChanged(auth, async (user) => {
                     if(document.getElementById('navAdmin')) document.getElementById('navAdmin').style.display = 'block';
                     
                     if(window.loadPending) window.loadPending();
+                    isValidUser = true;
                 } 
                 else if (data.tipe === 'supplier' && data.verified === true) {
                     window.currentUserRole = 'supplier';
                     document.getElementById('supplierDashboard').style.display = 'block';
                     document.getElementById('adminDashboard').style.display = 'none';
                     if(document.getElementById('navAdmin')) document.getElementById('navAdmin').style.display = 'none';
+                    isValidUser = true;
                 } 
                 else if (data.tipe === 'industri' && data.verified === true) {
                     window.currentUserRole = 'industri';
                     document.getElementById('adminDashboard').style.display = 'none';
                     document.getElementById('supplierDashboard').style.display = 'none';
                     if(document.getElementById('navAdmin')) document.getElementById('navAdmin').style.display = 'none';
+                    isValidUser = true;
                 } 
-                            if (window.muatDaftarBahan) window.muatDaftarBahan();
-
                 else {
                     alert('Akun Anda masih berstatus PENDING. Silakan tunggu verifikasi.');
                     window.logout(); 
                 }
+
+                // --- PEMANGGILAN KATALOG YANG BENAR ---
+                // Hanya panggil katalog jika user bukan pending
+                if (isValidUser && window.muatDaftarBahan) {
+                    window.muatDaftarBahan();
+                }
+
             } else {
                 alert('Gagal login: Data profil tidak ditemukan di database.');
                 window.logout();
@@ -791,6 +800,7 @@ onAuthStateChanged(auth, async (user) => {
     </script>
 </body>
 </html>
+
 
 
 
