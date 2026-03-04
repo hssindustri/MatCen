@@ -307,6 +307,7 @@
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, collection, getDocs, query, where, updateDoc, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
         import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-storage.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, getDocs, query, where, updateDoc, addDoc, serverTimestamp, deleteDoc } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
         
         const firebaseConfig = {
             apiKey: "AIzaSyDlsuZTlENpl1xT36w7mDBk6zWxO9ghbGI",
@@ -423,6 +424,27 @@
                 alert('Gagal menyimpan bahan baku: ' + error.message);
             }
         };
+        // --- FUNGSI HAPUS BAHAN BAKU (HANYA UNTUK ADMIN/PEMBINA) ---
+window.hapusBahanBaku = async (docId) => {
+    // Memunculkan peringatan (konfirmasi) sebelum menghapus
+    const konfirmasi = confirm("Apakah Anda yakin ingin menghapus bahan baku ini? Supplier terkait harus menginput ulang nantinya.");
+    
+    if (konfirmasi) {
+        try {
+            // Menghapus dokumen dari koleksi 'bahan_baku' berdasarkan ID-nya
+            await deleteDoc(doc(db, 'bahan_baku', docId));
+            
+            alert("Bahan baku berhasil dihapus dari sistem!");
+            
+            // Muat ulang daftar katalog agar barang yang dihapus langsung hilang dari layar
+            if (window.muatDaftarBahan) window.muatDaftarBahan();
+            
+        } catch (error) {
+            console.error("Gagal menghapus:", error);
+            alert("Terjadi kesalahan saat mencoba menghapus: " + error.message);
+        }
+    }
+};
         // --- FUNGSI DAFTAR AKUN IKM/PEMBINA ---
         window.daftarAkun = async () => {
             const tipe = document.getElementById('tipeAkun').value;
@@ -466,7 +488,7 @@
                 alert('Password salah atau email belum terdaftar!');
             }
         };
-                // ==========================================
+    
         // FITUR SUPPLIER: SIMPAN BAHAN BAKU
         // ==========================================
        window.simpanBahanBaku = async () => {
@@ -567,65 +589,71 @@
     }
 };
         
-// ==========================================
         // FITUR BERSAMA: AMBIL & TAMPILKAN BAHAN BAKU
         // ==========================================
-        window.muatDaftarBahan = async () => {
-            const container = document.getElementById('katalogBahanBakuContainer');
-            if (!container) return; // Jika wadahnya tidak ada di halaman, hentikan.
+       window.muatDaftarBahan = async () => {
+    const container = document.getElementById('katalogBahanBakuContainer');
+    if (!container) return;
 
-            try {
-                // Mengambil semua data dari koleksi 'bahan_baku'
-                const querySnapshot = await getDocs(collection(db, 'bahan_baku'));
-                
-                // Jika kosong
-                if (querySnapshot.empty) {
-                    container.innerHTML = '<p style="text-align: center; color: gray;">Belum ada bahan baku yang tersedia.</p>';
-                    return;
-                }
+    try {
+        const querySnapshot = await getDocs(collection(db, 'bahan_baku'));
+        
+        if (querySnapshot.empty) {
+            container.innerHTML = '<p style="text-align: center; color: gray;">Belum ada bahan baku yang tersedia.</p>';
+            return;
+        }
 
-                let htmlKonten = '';
+        let htmlKonten = '';
 
-                // Looping (mengulang) untuk setiap data yang ditemukan
-                querySnapshot.forEach((doc) => {
-                    const data = doc.data();
-                    
-                    // Membuat Desain Kartu (Card) untuk setiap bahan baku
-                    htmlKonten += `
-                        <div style="background: white; border-radius: 15px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #eee; position: relative;">
-                            
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
-                                <span style="background: var(--bg-light); color: var(--primary-color); padding: 5px 10px; border-radius: 8px; font-size: 0.8rem; font-weight: bold;">
-                                    <i class="fas fa-tag"></i> ${data.kategori.toUpperCase()}
-                                </span>
-                                <span style="background: #fff3e0; color: #e65100; padding: 5px 10px; border-radius: 8px; font-size: 0.8rem; font-weight: bold;">
-                                    <i class="fas fa-map-marker-alt"></i> ${data.lokasi}
-                                </span>
-                            </div>
+        querySnapshot.forEach((docSnap) => {
+            const data = docSnap.data();
+            const docId = docSnap.id; // Menyimpan ID dokumen dari Firebase
 
-                            <h3 style="color: var(--text-dark); margin-bottom: 5px; font-size: 1.2rem;">${data.nama_bahan}</h3>
-                            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 15px; height: 40px; overflow: hidden;">${data.spesifikasi}</p>
-                            
-                            <div style="background: #f9f9f9; padding: 10px; border-radius: 8px; margin-bottom: 15px; text-align: center;">
-                                <span style="font-size: 0.9rem; color: gray;">Ketersediaan Stok:</span><br>
-                                <strong style="font-size: 1.3rem; color: var(--primary-color);">${data.jumlah} ${data.satuan}</strong>
-                            </div>
-
-                            <button class="btn-primary" onclick="alert('Fitur pemesanan untuk ${data.nama_bahan} sedang disiapkan!')" style="width: 100%; border-radius: 25px; font-size: 0.95rem;">
-                                <i class="fas fa-shopping-cart"></i> Ajukan Pemesanan
-                            </button>
-                        </div>
-                    `;
-                });
-
-                // Memasukkan kartu-kartu tadi ke dalam HTML
-                container.innerHTML = htmlKonten;
-
-            } catch (error) {
-                console.error("Error mengambil data: ", error);
-                container.innerHTML = '<p style="color: red; text-align: center;">Gagal memuat data bahan baku.</p>';
+            // LOGIKA FILTER TOMBOL HAPUS
+            let tombolHapus = '';
+            if (window.currentUserRole === 'admin' || window.currentUserRole === 'pembina') {
+                tombolHapus = `
+                    <button class="btn-secondary" onclick="hapusBahanBaku('${docId}')" style="width: 100%; border-radius: 25px; font-size: 0.95rem; margin-top: 10px; background-color: #dc3545; color: white; border: none;">
+                        <i class="fas fa-trash"></i> Hapus Barang
+                    </button>
+                `;
             }
-        };
+
+            htmlKonten += `
+                <div style="background: white; border-radius: 15px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #eee; position: relative;">
+                    
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                        <span style="background: var(--bg-light); color: var(--primary-color); padding: 5px 10px; border-radius: 8px; font-size: 0.8rem; font-weight: bold;">
+                            <i class="fas fa-tag"></i> ${data.kategori.toUpperCase()}
+                        </span>
+                        <span style="background: #fff3e0; color: #e65100; padding: 5px 10px; border-radius: 8px; font-size: 0.8rem; font-weight: bold;">
+                            <i class="fas fa-map-marker-alt"></i> ${data.lokasi}
+                        </span>
+                    </div>
+
+                    <h3 style="color: var(--text-dark); margin-bottom: 5px; font-size: 1.2rem;">${data.nama_bahan}</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 15px; height: 40px; overflow: hidden;">${data.spesifikasi}</p>
+                    
+                    <div style="background: #f9f9f9; padding: 10px; border-radius: 8px; margin-bottom: 15px; text-align: center;">
+                        <span style="font-size: 0.9rem; color: gray;">Ketersediaan Stok:</span><br>
+                        <strong style="font-size: 1.3rem; color: var(--primary-color);">${data.jumlah} ${data.satuan}</strong>
+                    </div>
+
+                    <button class="btn-primary" onclick="alert('Fitur pemesanan untuk ${data.nama_bahan} sedang disiapkan!')" style="width: 100%; border-radius: 25px; font-size: 0.95rem;">
+                        <i class="fas fa-shopping-cart"></i> Ajukan Pemesanan
+                    </button>
+                    
+                    ${tombolHapus} </div>
+            `;
+        });
+
+        container.innerHTML = htmlKonten;
+
+    } catch (error) {
+        console.error("Error mengambil data: ", error);
+        container.innerHTML = '<p style="color: red; text-align: center;">Gagal memuat data bahan baku.</p>';
+    }
+};
 
                 window.logout = async () => {
             await signOut(auth);
@@ -695,8 +723,6 @@
 
 onAuthStateChanged(auth, async (user) => {
     if (user) {
-        if (window.muatDaftarBahan) window.muatDaftarBahan();
-        
         if(document.getElementById('navLogin')) document.getElementById('navLogin').style.display = 'none';
         if(document.getElementById('navUser')) document.getElementById('navUser').style.display = 'flex';
         if(document.getElementById('userName')) document.getElementById('userName').textContent = user.email;
@@ -729,6 +755,8 @@ onAuthStateChanged(auth, async (user) => {
                     document.getElementById('supplierDashboard').style.display = 'none';
                     if(document.getElementById('navAdmin')) document.getElementById('navAdmin').style.display = 'none';
                 } 
+                            if (window.muatDaftarBahan) window.muatDaftarBahan();
+
                 else {
                     alert('Akun Anda masih berstatus PENDING. Silakan tunggu verifikasi.');
                     window.logout(); 
@@ -763,6 +791,7 @@ onAuthStateChanged(auth, async (user) => {
     </script>
 </body>
 </html>
+
 
 
 
