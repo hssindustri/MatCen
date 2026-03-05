@@ -589,15 +589,21 @@ window.hapusBahanBaku = async (docId) => {
         
         // FITUR BERSAMA: AMBIL & TAMPILKAN BAHAN BAKU
         // ==========================================
-       window.muatDaftarBahan = async () => {
-    // Fungsi pemicu saat kartu diklik
+    // ==========================================
+        // 1. FITUR FILTER KATEGORI (Berdiri Sendiri)
+        // ==========================================
         window.filterKategori = (kategoriPilihan) => {
             window.muatDaftarBahan(kategoriPilihan);
             // Otomatis geser layar ke bawah agar pengguna melihat hasilnya
-            document.getElementById('katalogBahanBakuContainer').scrollIntoView({behavior: 'smooth'});
+            const wadahKatalog = document.getElementById('katalogBahanBakuContainer');
+            if (wadahKatalog) {
+                wadahKatalog.scrollIntoView({behavior: 'smooth', block: 'start'});
+            }
         };
 
-        // Modifikasi fungsi muatDaftarBahan agar menerima parameter filter
+        // ==========================================
+        // 2. FITUR AMBIL & TAMPILKAN BAHAN BAKU (Berdiri Sendiri)
+        // ==========================================
         window.muatDaftarBahan = async (kategoriFilter = 'semua') => {
             const container = document.getElementById('katalogBahanBakuContainer');
             if (!container) return;
@@ -636,7 +642,6 @@ window.hapusBahanBaku = async (docId) => {
                         `;
                     }
 
-                    // ... (Kode pembuatan htmlKonten / Desain Kartu tetap sama persis seperti yang Anda miliki sebelumnya) ...
                     htmlKonten += `
                         <div style="background: white; border-radius: 15px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #eee; position: relative;">
                             
@@ -818,6 +823,7 @@ onAuthStateChanged(auth, async (user) => {
     </script>
 </body>
 </html>
+
 
 
 
