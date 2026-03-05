@@ -139,6 +139,7 @@
     </div>
 </section>
     <div id="katalogBahanBakuContainer" style="margin-top: 30px; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+        <button onclick="filterKategori('semua')" class="btn-secondary">Tampilkan Semua</button>
     <p id="pesanLoading" style="text-align: center; color: gray;">Memuat data bahan baku...</p>
 </div>
 
@@ -588,69 +589,89 @@ window.hapusBahanBaku = async (docId) => {
         // FITUR BERSAMA: AMBIL & TAMPILKAN BAHAN BAKU
         // ==========================================
        window.muatDaftarBahan = async () => {
-    const container = document.getElementById('katalogBahanBakuContainer');
-    if (!container) return;
+    // Fungsi pemicu saat kartu diklik
+        window.filterKategori = (kategoriPilihan) => {
+            window.muatDaftarBahan(kategoriPilihan);
+            // Otomatis geser layar ke bawah agar pengguna melihat hasilnya
+            document.getElementById('katalogBahanBakuContainer').scrollIntoView({behavior: 'smooth'});
+        };
 
-    try {
-        const querySnapshot = await getDocs(collection(db, 'bahan_baku'));
-        
-        if (querySnapshot.empty) {
-            container.innerHTML = '<p style="text-align: center; color: gray;">Belum ada bahan baku yang tersedia.</p>';
-            return;
-        }
+        // Modifikasi fungsi muatDaftarBahan agar menerima parameter filter
+        window.muatDaftarBahan = async (kategoriFilter = 'semua') => {
+            const container = document.getElementById('katalogBahanBakuContainer');
+            if (!container) return;
+            
+            container.innerHTML = '<p style="text-align: center; color: gray;"><i class="fas fa-spinner fa-spin"></i> Memuat data...</p>';
 
-        let htmlKonten = '';
+            try {
+                let q;
+                // LOGIKA FILTER: Jika yang dipilih bukan 'semua', cari kategori spesifik
+                if (kategoriFilter !== 'semua') {
+                    q = query(collection(db, 'bahan_baku'), where('kategori', '==', kategoriFilter));
+                } else {
+                    // Jika 'semua', ambil seluruh data
+                    q = collection(db, 'bahan_baku');
+                }
 
-        querySnapshot.forEach((docSnap) => {
-            const data = docSnap.data();
-            const docId = docSnap.id; // Menyimpan ID dokumen dari Firebase
+                const querySnapshot = await getDocs(q);
+                
+                if (querySnapshot.empty) {
+                    container.innerHTML = `<p style="text-align: center; color: gray; grid-column: 1/-1;">Belum ada bahan baku untuk kategori <b>${kategoriFilter.toUpperCase()}</b> saat ini.</p>`;
+                    return;
+                }
 
-            // LOGIKA FILTER TOMBOL HAPUS
-            let tombolHapus = '';
-            if (window.currentUserRole === 'admin' || window.currentUserRole === 'pembina') {
-                tombolHapus = `
-                    <button class="btn-secondary" onclick="hapusBahanBaku('${docId}')" style="width: 100%; border-radius: 25px; font-size: 0.95rem; margin-top: 10px; background-color: #dc3545; color: white; border: none;">
-                        <i class="fas fa-trash"></i> Hapus Barang
-                    </button>
-                `;
+                let htmlKonten = '';
+
+                querySnapshot.forEach((docSnap) => {
+                    const data = docSnap.data();
+                    const docId = docSnap.id; 
+
+                    let tombolHapus = '';
+                    if (window.currentUserRole === 'admin' || window.currentUserRole === 'pembina') {
+                        tombolHapus = `
+                            <button class="btn-secondary" onclick="hapusBahanBaku('${docId}')" style="width: 100%; border-radius: 25px; font-size: 0.95rem; margin-top: 10px; background-color: #dc3545; color: white; border: none;">
+                                <i class="fas fa-trash"></i> Hapus Barang
+                            </button>
+                        `;
+                    }
+
+                    // ... (Kode pembuatan htmlKonten / Desain Kartu tetap sama persis seperti yang Anda miliki sebelumnya) ...
+                    htmlKonten += `
+                        <div style="background: white; border-radius: 15px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #eee; position: relative;">
+                            
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                                <span style="background: var(--bg-light); color: var(--primary-color); padding: 5px 10px; border-radius: 8px; font-size: 0.8rem; font-weight: bold;">
+                                    <i class="fas fa-tag"></i> ${data.kategori.toUpperCase()}
+                                </span>
+                                <span style="background: #fff3e0; color: #e65100; padding: 5px 10px; border-radius: 8px; font-size: 0.8rem; font-weight: bold;">
+                                    <i class="fas fa-map-marker-alt"></i> ${data.lokasi}
+                                </span>
+                            </div>
+
+                            <h3 style="color: var(--text-dark); margin-bottom: 5px; font-size: 1.2rem;">${data.nama_bahan}</h3>
+                            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 15px; height: 40px; overflow: hidden;">${data.spesifikasi}</p>
+                            
+                            <div style="background: #f9f9f9; padding: 10px; border-radius: 8px; margin-bottom: 15px; text-align: center;">
+                                <span style="font-size: 0.9rem; color: gray;">Ketersediaan Stok:</span><br>
+                                <strong style="font-size: 1.3rem; color: var(--primary-color);">${data.jumlah} ${data.satuan}</strong>
+                            </div>
+
+                            <button class="btn-primary" onclick="alert('Fitur pemesanan untuk ${data.nama_bahan} sedang disiapkan!')" style="width: 100%; border-radius: 25px; font-size: 0.95rem;">
+                                <i class="fas fa-shopping-cart"></i> Ajukan Pemesanan
+                            </button>
+                            
+                            ${tombolHapus}
+                        </div>
+                    `;
+                });
+
+                container.innerHTML = htmlKonten;
+
+            } catch (error) {
+                console.error("Error mengambil data: ", error);
+                container.innerHTML = '<p style="color: red; text-align: center; grid-column: 1/-1;">Gagal memuat data bahan baku.</p>';
             }
-
-            htmlKonten += `
-                <div style="background: white; border-radius: 15px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #eee; position: relative;">
-                    
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
-                        <span style="background: var(--bg-light); color: var(--primary-color); padding: 5px 10px; border-radius: 8px; font-size: 0.8rem; font-weight: bold;">
-                            <i class="fas fa-tag"></i> ${data.kategori.toUpperCase()}
-                        </span>
-                        <span style="background: #fff3e0; color: #e65100; padding: 5px 10px; border-radius: 8px; font-size: 0.8rem; font-weight: bold;">
-                            <i class="fas fa-map-marker-alt"></i> ${data.lokasi}
-                        </span>
-                    </div>
-
-                    <h3 style="color: var(--text-dark); margin-bottom: 5px; font-size: 1.2rem;">${data.nama_bahan}</h3>
-                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 15px; height: 40px; overflow: hidden;">${data.spesifikasi}</p>
-                    
-                    <div style="background: #f9f9f9; padding: 10px; border-radius: 8px; margin-bottom: 15px; text-align: center;">
-                        <span style="font-size: 0.9rem; color: gray;">Ketersediaan Stok:</span><br>
-                        <strong style="font-size: 1.3rem; color: var(--primary-color);">${data.jumlah} ${data.satuan}</strong>
-                    </div>
-
-                    <button class="btn-primary" onclick="alert('Fitur pemesanan untuk ${data.nama_bahan} sedang disiapkan!')" style="width: 100%; border-radius: 25px; font-size: 0.95rem;">
-                        <i class="fas fa-shopping-cart"></i> Ajukan Pemesanan
-                    </button>
-                    
-                    ${tombolHapus} </div>
-            `;
-        });
-
-        container.innerHTML = htmlKonten;
-
-    } catch (error) {
-        console.error("Error mengambil data: ", error);
-        container.innerHTML = '<p style="color: red; text-align: center;">Gagal memuat data bahan baku.</p>';
-    }
-};
-
+        };
                 window.logout = async () => {
             await signOut(auth);
             alert('Anda telah keluar.');
@@ -796,6 +817,7 @@ onAuthStateChanged(auth, async (user) => {
     </script>
 </body>
 </html>
+
 
 
 
