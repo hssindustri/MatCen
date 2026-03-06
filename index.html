@@ -300,6 +300,41 @@
     </div>
 </div>
 
+    // PEMESANAN IKM
+<div id="modalPemesanan" class="modal" style="display:none;">
+    <div class="modal-content" style="max-width: 500px;">
+        <span class="close" onclick="closeModal('modalPemesanan')">&times;</span>
+        <h2 style="color: var(--primary-color); margin-bottom: 20px;"><i class="fas fa-shopping-cart"></i> Formulir Pemesanan</h2>
+        
+        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid var(--secondary-color);">
+            <h4 id="namaBahanPesan" style="margin: 0 0 5px 0; color: #333;">Nama Bahan</h4>
+            <p style="margin: 0; font-size: 0.85rem; color: #666;">Lokasi: <span id="lokasiBahanPesan"></span></p>
+            <p style="margin: 0; font-size: 0.85rem; color: #666;">Sisa Stok: <strong id="stokTersediaPesan" style="color: var(--primary-color);">0</strong> <span id="satuanPesanLabel"></span></p>
+        </div>
+
+        <div style="text-align: left;">
+            <input type="hidden" id="idBahanHidden">
+            <input type="hidden" id="emailSupplierHidden">
+            <input type="hidden" id="satuanHidden">
+            <input type="hidden" id="stokMaksimalHidden">
+
+            <label style="font-weight: 600; font-size: 0.9rem;">Jumlah Dipesan:</label>
+            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                <input type="number" id="inputJumlahPesan" placeholder="Contoh: 100" style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #ccc;" min="1">
+                <input type="text" id="tampilSatuanPesan" disabled style="width: 80px; padding: 10px; background: #eee; border: 1px solid #ccc; border-radius: 8px; text-align: center; font-weight: bold;">
+            </div>
+
+            <label style="font-weight: 600; font-size: 0.9rem;">Unggah Dokumen PO (Purchase Order):</label>
+            <p style="font-size: 0.8rem; color: gray; margin-top: 0; margin-bottom: 5px;">Format: PDF/JPG/PNG. Wajib dilampirkan sebagai bukti pesanan resmi.</p>
+            <input type="file" id="inputDokumenPO" accept=".pdf, .jpg, .jpeg, .png" style="width: 100%; padding: 10px; margin-bottom: 20px; border: 1px dashed var(--primary-color); border-radius: 8px;">
+
+            <label style="font-weight: 600; font-size: 0.9rem;">Catatan Tambahan (Opsional):</label>
+            <textarea id="inputCatatanPesan" rows="2" placeholder="Tulis pesan untuk supplier..." style="width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #ccc;"></textarea>
+
+            <button onclick="simpanPesanan()" id="btnKirimPesanan" class="btn-primary" style="width: 100%; font-size: 1.1rem; padding: 12px; border-radius: 25px;"><i class="fas fa-paper-plane"></i> Kirim Pesanan Sekarang</button>
+        </div>
+    </div>
+</div>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
@@ -587,9 +622,6 @@ window.hapusBahanBaku = async (docId) => {
         btnSimpan.disabled = false;
     }
 };
-
-         // FITUR BERSAMA: AMBIL & TAMPILKAN BAHAN BAKU
-        // ==========================================
     // ==========================================
         // 1. FITUR FILTER KATEGORI (Berdiri Sendiri)
         // ==========================================
@@ -601,45 +633,7 @@ window.hapusBahanBaku = async (docId) => {
                 wadahKatalog.scrollIntoView({behavior: 'smooth', block: 'start'});
             }
         };
-
-
-               // PEMESANAN IKM
-<div id="modalPemesanan" class="modal" style="display:none;">
-    <div class="modal-content" style="max-width: 500px;">
-        <span class="close" onclick="closeModal('modalPemesanan')">&times;</span>
-        <h2 style="color: var(--primary-color); margin-bottom: 20px;"><i class="fas fa-shopping-cart"></i> Formulir Pemesanan</h2>
         
-        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid var(--secondary-color);">
-            <h4 id="namaBahanPesan" style="margin: 0 0 5px 0; color: #333;">Nama Bahan</h4>
-            <p style="margin: 0; font-size: 0.85rem; color: #666;">Lokasi: <span id="lokasiBahanPesan"></span></p>
-            <p style="margin: 0; font-size: 0.85rem; color: #666;">Sisa Stok: <strong id="stokTersediaPesan" style="color: var(--primary-color);">0</strong> <span id="satuanPesanLabel"></span></p>
-        </div>
-
-        <div style="text-align: left;">
-            <input type="hidden" id="idBahanHidden">
-            <input type="hidden" id="emailSupplierHidden">
-            <input type="hidden" id="satuanHidden">
-            <input type="hidden" id="stokMaksimalHidden">
-
-            <label style="font-weight: 600; font-size: 0.9rem;">Jumlah Dipesan:</label>
-            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                <input type="number" id="inputJumlahPesan" placeholder="Contoh: 100" style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #ccc;" min="1">
-                <input type="text" id="tampilSatuanPesan" disabled style="width: 80px; padding: 10px; background: #eee; border: 1px solid #ccc; border-radius: 8px; text-align: center; font-weight: bold;">
-            </div>
-
-            <label style="font-weight: 600; font-size: 0.9rem;">Unggah Dokumen PO (Purchase Order):</label>
-            <p style="font-size: 0.8rem; color: gray; margin-top: 0; margin-bottom: 5px;">Format: PDF/JPG/PNG. Wajib dilampirkan sebagai bukti pesanan resmi.</p>
-            <input type="file" id="inputDokumenPO" accept=".pdf, .jpg, .jpeg, .png" style="width: 100%; padding: 10px; margin-bottom: 20px; border: 1px dashed var(--primary-color); border-radius: 8px;">
-
-            <label style="font-weight: 600; font-size: 0.9rem;">Catatan Tambahan (Opsional):</label>
-            <textarea id="inputCatatanPesan" rows="2" placeholder="Tulis pesan untuk supplier..." style="width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #ccc;"></textarea>
-
-            <button onclick="simpanPesanan()" id="btnKirimPesanan" class="btn-primary" style="width: 100%; font-size: 1.1rem; padding: 12px; border-radius: 25px;"><i class="fas fa-paper-plane"></i> Kirim Pesanan Sekarang</button>
-        </div>
-    </div>
-</div>
-        
-       
 
         // ==========================================
         // 2. FITUR AMBIL & TAMPILKAN BAHAN BAKU (Berdiri Sendiri)
@@ -989,6 +983,7 @@ onAuthStateChanged(auth, async (user) => {
     </script>
 </body>
 </html>
+
 
 
 
