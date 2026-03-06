@@ -697,9 +697,9 @@ window.hapusBahanBaku = async (docId) => {
                                 <strong style="font-size: 1.3rem; color: var(--primary-color);">${data.jumlah} ${data.satuan}</strong>
                             </div>
 
-                            <button class="btn-primary" onclick="alert('Fitur pemesanan untuk ${data.nama_bahan} sedang disiapkan!')" style="width: 100%; border-radius: 25px; font-size: 0.95rem;">
-                                <i class="fas fa-shopping-cart"></i> Ajukan Pemesanan
-                            </button>
+                            <button class="btn-primary" onclick="bukaModalPesan('${docId}', '${data.nama_bahan.replace(/'/g, "\\'")}', ${data.jumlah}, '${data.satuan}', '${data.supplier_email}', '${data.lokasi}')" style="width: 100%; border-radius: 25px; font-size: 0.95rem;">
+    <i class="fas fa-shopping-cart"></i> Ajukan Pemesanan
+</button>
                             
                             ${tombolHapus}
                         </div>
@@ -776,6 +776,132 @@ window.hapusBahanBaku = async (docId) => {
                 } catch(error) {
                     alert('Gagal memverifikasi: ' + error.message);
                 }
+            }
+        };
+// ==========================================
+        // FITUR IKM: BUKA MODAL PEMESANAN
+        // ==========================================
+        window.bukaModalPesan = (idBahan, nama, stok, satuan, supplier, lokasi) => {
+            // Pastikan user yang klik adalah IKM (atau admin/pembina untuk testing)
+            if (window.currentUserRole !== 'industri' && window.currentUserRole !== 'admin' && window.currentUserRole !== 'pembina') {
+                alert("Hanya akun IKM/Industri yang dapat mengajukan pemesanan.");
+                return;
+            }
+
+            // Isi teks di dalam modal
+            document.getElementById('namaBahanPesan').textContent = nama;
+            document.getElementById('lokasiBahanPesan').textContent = lokasi;
+            document.getElementById('stokTersediaPesan').textContent = stok;
+            document.getElementById('satuanPesanLabel').textContent = satuan;
+            document.getElementById('tampilSatuanPesan').value = satuan;
+
+            // Simpan data ke input tersembunyi
+            document.getElementById('idBahanHidden').value = idBahan;
+            document.getElementById('emailSupplierHidden').value = supplier;
+            document.getElementById('satuanHidden').value = satuan;
+            document.getElementById('stokMaksimalHidden').value = stok;
+
+            openModal('modalPemesanan');
+        };
+
+        // ==========================================
+        // FITUR IKM: PROSES & SIMPAN PESANAN
+        // ==========================================
+        window.simpanPesanan = async () => {
+            const idBahan = document.getElementById('idBahanHidden').value;
+            const namaBahan = document.getElementById('namaBahanPesan').textContent;
+            const emailSupplier = document.getElementById('emailSupplierHidden').value;
+            const stokMaksimal = Number(document.getElementById('stokMaksimalHidden').value);
+            const satuan = document.getElementById('satuanHidden').value;
+            
+            const jumlahPesan = Number(document.getElementById('inputJumlahPesan').value);
+            const catatan = document.getElementById('inputCatatanPesan').value;
+            const fileInputPO = document.getElementById('inputDokumenPO');
+            const btnKirim = document.getElementById('btnKirimPesanan');
+
+            // Validasi Input
+            if (!jumlahPesan || jumlahPesan <= 0) {
+                alert("Masukkan jumlah pesanan yang valid!"); return;
+            }
+            if (jumlahPesan > stokMaksimal) {
+                alert(`Maaf, stok tidak mencukupi. Maksimal pesanan adalah ${stokMaksimal} ${satuan}.`); return;
+            }
+            if (fileInputPO.files.length === 0) {
+                alert("Harap unggah dokumen Purchase Order (PO) Anda."); return;
+            }
+
+            try {
+                btnKirim.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses Pesanan...';
+                btnKirim.disabled = true;
+
+                // 1. PROSES UPLOAD PO KE GOOGLE DRIVE
+                const filePO = fileInputPO.files[0];
+                const getBase64 = (file) => new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.readAsDataURL(file);
+                    reader.onload = () => resolve(reader.result.split(',')[1]);
+                    reader.onerror = error => reject(error);
+                });
+                const base64Data = await getBase64(filePO);
+
+                // PASTE URL GOOGLE APPS SCRIPT ANDA DI BAWAH INI (Sama seperti punya Supplier)
+                const scriptURL = 'https://script.google.com/macros/s/AKfycbwPdwEyPIyWvbSQBWB1an_EgSNBDiPFPRo0InmN9WO9_WFhC1LqUEiP9hipl4Q2YTul/exec';
+                
+                btnKirim.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengunggah Dokumen PO...';
+                const responseUpload = await fetch(scriptURL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        fileName: 'PO_' + auth.currentUser.email + '_' + filePO.name,
+                        mimeType: filePO.type,
+                        base64: base64Data
+                    })
+                });
+                
+                const resultUpload = await responseUpload.json();
+                let urlPODrive = "";
+                if(resultUpload.status === "success") {
+                    urlPODrive = resultUpload.url;
+                } else {
+                    throw new Error("Gagal mengunggah dokumen PO ke Drive.");
+                }
+
+                // 2. SIMPAN DATA PESANAN KE FIREBASE
+                btnKirim.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan Transaksi...';
+                await addDoc(collection(db, 'pesanan'), {
+                    id_bahan: idBahan,
+                    nama_bahan: namaBahan,
+                    jumlah_pesan: jumlahPesan,
+                    satuan: satuan,
+                    catatan: catatan,
+                    url_dokumen_po: urlPODrive,
+                    status_pesanan: 'Menunggu Konfirmasi',
+                    pembeli_email: auth.currentUser.email, // Email IKM
+                    supplier_email: emailSupplier, // Email Supplier tujuan
+                    waktu_pesan: serverTimestamp()
+                });
+
+                // 3. (OPSIONAL) UPDATE SISA STOK DI DATABASE BAHAN BAKU
+                // Mengurangi jumlah stok yang ada di etalase
+                const sisaStok = stokMaksimal - jumlahPesan;
+                await updateDoc(doc(db, 'bahan_baku', idBahan), {
+                    jumlah: sisaStok
+                });
+
+                alert('Pesanan Berhasil Dikirim! Dokumen PO Anda telah diteruskan ke Supplier.');
+                closeModal('modalPemesanan');
+                
+                // Bersihkan form & refresh katalog agar stok terbaru terlihat
+                document.getElementById('inputJumlahPesan').value = '';
+                document.getElementById('inputCatatanPesan').value = '';
+                fileInputPO.value = '';
+                if (window.muatDaftarBahan) window.muatDaftarBahan();
+
+            } catch (error) {
+                console.error("Error pemesanan:", error);
+                alert("Terjadi kesalahan: " + error.message);
+            } finally {
+                btnKirim.innerHTML = '<i class="fas fa-paper-plane"></i> Kirim Pesanan Sekarang';
+                btnKirim.disabled = false;
             }
         };
 
@@ -858,6 +984,7 @@ onAuthStateChanged(auth, async (user) => {
     </script>
 </body>
 </html>
+
 
 
 
