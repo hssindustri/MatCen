@@ -12,7 +12,7 @@
 </head>
 <body>
    <header style="background: white; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 100;">
-    <div class="nav-brand" style="display: flex; align-items: center; gap: 10px;">
+   <div class="nav-brand" onclick="window.scrollTo({top: 0, behavior: 'smooth'});" style="display: flex; align-items: center; gap: 10px; cursor: pointer;" title="Kembali ke Atas">
         <img src="logo-matcen.png" alt="MatCen Logo" style="height: 50px;"> 
     </div>
     
@@ -68,25 +68,25 @@
 
                 <div style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
                     
-                    <div style="background: white; border-radius: 20px; overflow: hidden; width: 230px; text-align: left; box-shadow: 0 15px 35px rgba(0,0,0,0.08); border: 1px solid rgba(255,255,255,0.5);">
-                        <img src="lokasi-takaru.jpg" alt="LIK Takaru" style="width: 100%; height: 130px; object-fit: cover; border-bottom: 3px solid var(--secondary-color);">
-                        <div style="padding: 15px;">
-                            <h3 style="font-size: 1.05rem; margin: 0 0 5px 0; font-weight: 700; color: var(--text-dark);">LIK TAKARU</h3>
-                            <p style="font-size: 0.85rem; margin: 0; color: var(--text-muted); display: flex; align-items: center; gap: 6px;">
-                                <i class="fas fa-map-marker-alt" style="color: var(--primary-light);"></i> Kabupaten Tegal
-                            </p>
-                        </div>
+                    <div onclick="window.open('https://www.google.com/maps/place/Lik+Takaru+Tegal/@-6.8631245,109.1696837,3a,75y,90t/data=!3m8!1e2!3m6!1sCIHM0ogKEICAgIC28KHAZw!2e10!3e12!6shttps:%2F%2Flh3.googleusercontent.com%2Fgps-cs-s%2FAHVAweoOL2OxXDt8C-Biitx9GbJ3q0oqZP6HOZXv-nfDP-5fYVZUzY5aaxSswgEMA-quMPxnnlW9-CTzINrypcUlqQ9wJsJuWLWb5TrYFQuVgOz_2U3ugX6lD7YM-xUKlKZ0V4zzy2-v%3Dw203-h152-k-no!7i4160!8i3120!4m9!3m8!1s0x2e6fb78c19971f61:0x1485003b0eda67!8m2!3d-6.8630544!4d109.1696875!10e5!14m1!1BCgIgAQ!16s%2Fg%2F11bz_0nw5v?entry=ttu&g_ep=EgoyMDI2MDMwMi4wIKXMDSoASAFQAw%3D%3D', '_blank')" style="background: white; border-radius: 20px; overflow: hidden; width: 230px; text-align: left; box-shadow: 0 15px 35px rgba(0,0,0,0.08); border: 1px solid rgba(255,255,255,0.5); cursor: pointer; transition: transform 0.3s;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'" title="Buka di Google Maps">
+                    <img src="lokasi-takaru.jpg" alt="LIK Takaru" style="width: 100%; height: 130px; object-fit: cover; border-bottom: 3px solid var(--secondary-color);">
+                    <div style="padding: 15px;">
+                        <h3 style="font-size: 1.05rem; margin: 0 0 5px 0; font-weight: 700; color: var(--text-dark);">LIK TAKARU</h3>
+                        <p style="font-size: 0.85rem; margin: 0; color: var(--text-muted); display: flex; align-items: center; gap: 6px;">
+                            <i class="fas fa-map-marker-alt" style="color: var(--primary-light);"></i> Kabupaten Tegal
+                        </p>
                     </div>
+                </div>
 
-                    <div style="background: white; border-radius: 20px; overflow: hidden; width: 230px; text-align: left; box-shadow: 0 15px 35px rgba(0,0,0,0.08); border: 1px solid rgba(255,255,255,0.5);">
-                        <img src="lokasi-sikim.jpg" alt="SIKIM" style="width: 100%; height: 130px; object-fit: cover; border-bottom: 3px solid var(--secondary-color);">
-                        <div style="padding: 15px;">
-                            <h3 style="font-size: 1.05rem; margin: 0 0 5px 0; font-weight: 700; color: var(--text-dark);">SIKIM</h3>
-                            <p style="font-size: 0.85rem; margin: 0; color: var(--text-muted); display: flex; align-items: center; gap: 6px;">
-                                <i class="fas fa-map-marker-alt" style="color: var(--primary-light);"></i> Kab. Majalengka
-                            </p>
-                        </div>
+                <div onclick="window.open('https://www.google.com/maps/place/SIKIM+(+Sentra+Industri)+Majalengka/@-6.8165422,108.2208312,17z/data=!3m1!4b1!4m6!3m5!1s0x2e6f2997123c2b7d:0xedba1e95e2f169d7!8m2!3d-6.8165422!4d108.2208312!16s%2Fg%2F11h03fnzkz?entry=ttu&g_ep=EgoyMDI2MDMwMi4wIKXMDSoASAFQAw%3D%3D', '_blank')" style="background: white; border-radius: 20px; overflow: hidden; width: 230px; text-align: left; box-shadow: 0 15px 35px rgba(0,0,0,0.08); border: 1px solid rgba(255,255,255,0.5); cursor: pointer; transition: transform 0.3s;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'" title="Buka di Google Maps">
+                    <img src="lokasi-sikim.jpg" alt="SIKIM" style="width: 100%; height: 130px; object-fit: cover; border-bottom: 3px solid var(--secondary-color);">
+                    <div style="padding: 15px;">
+                        <h3 style="font-size: 1.05rem; margin: 0 0 5px 0; font-weight: 700; color: var(--text-dark);">SIKIM</h3>
+                        <p style="font-size: 0.85rem; margin: 0; color: var(--text-muted); display: flex; align-items: center; gap: 6px;">
+                            <i class="fas fa-map-marker-alt" style="color: var(--primary-light);"></i> Kab. Majalengka
+                        </p>
                     </div>
+                </div>
 
                 </div>
             </div>
@@ -823,6 +823,7 @@ onAuthStateChanged(auth, async (user) => {
     </script>
 </body>
 </html>
+
 
 
 
