@@ -843,11 +843,11 @@ window.hapusBahanBaku = async (docId) => {
                 });
                 const base64Data = await getBase64(filePO);
 
-                // PASTE URL GOOGLE APPS SCRIPT ANDA DI BAWAH INI (Sama seperti punya Supplier)
-                const scriptURL = 'https://script.google.com/macros/s/AKfycbwPdwEyPIyWvbSQBWB1an_EgSNBDiPFPRo0InmN9WO9_WFhC1LqUEiP9hipl4Q2YTul/exec';
+               // MASUKKAN WEB APP URL KHUSUS FOLDER PO DI SINI
+                const scriptURL_PO = 'PASTE_WEB_APP_URL_YANG_BARU_DI_SINI';
                 
                 btnKirim.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengunggah Dokumen PO...';
-                const responseUpload = await fetch(scriptURL, {
+                const responseUpload = await fetch(scriptURL_PO, {
                     method: 'POST',
                     body: JSON.stringify({
                         fileName: 'PO_' + auth.currentUser.email + '_' + filePO.name,
@@ -983,6 +983,7 @@ onAuthStateChanged(auth, async (user) => {
     </script>
 </body>
 </html>
+
 
 
 
