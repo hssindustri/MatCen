@@ -564,6 +564,7 @@ window.hapusBahanBaku = async (docId) => {
             timestamp: serverTimestamp()
         });
 
+        // ... (ujung bawah dari window.simpanBahanBaku) ...
         alert('Berhasil! Bahan baku dan dokumen telah ditambahkan.');
         closeModal('modalTambahBahan');
         
@@ -586,8 +587,24 @@ window.hapusBahanBaku = async (docId) => {
         btnSimpan.disabled = false;
     }
 };
+
+         // FITUR BERSAMA: AMBIL & TAMPILKAN BAHAN BAKU
+        // ==========================================
+    // ==========================================
+        // 1. FITUR FILTER KATEGORI (Berdiri Sendiri)
+        // ==========================================
+        window.filterKategori = (kategoriPilihan) => {
+            window.muatDaftarBahan(kategoriPilihan);
+            // Otomatis geser layar ke bawah agar pengguna melihat hasilnya
+            const wadahKatalog = document.getElementById('katalogBahanBakuContainer');
+            if (wadahKatalog) {
+                wadahKatalog.scrollIntoView({behavior: 'smooth', block: 'start'});
+            }
+        };
+
+
                // PEMESANAN IKM
- <div id="modalPemesanan" class="modal" style="display:none;">
+<div id="modalPemesanan" class="modal" style="display:none;">
     <div class="modal-content" style="max-width: 500px;">
         <span class="close" onclick="closeModal('modalPemesanan')">&times;</span>
         <h2 style="color: var(--primary-color); margin-bottom: 20px;"><i class="fas fa-shopping-cart"></i> Formulir Pemesanan</h2>
@@ -622,19 +639,7 @@ window.hapusBahanBaku = async (docId) => {
     </div>
 </div>
         
-        // FITUR BERSAMA: AMBIL & TAMPILKAN BAHAN BAKU
-        // ==========================================
-    // ==========================================
-        // 1. FITUR FILTER KATEGORI (Berdiri Sendiri)
-        // ==========================================
-        window.filterKategori = (kategoriPilihan) => {
-            window.muatDaftarBahan(kategoriPilihan);
-            // Otomatis geser layar ke bawah agar pengguna melihat hasilnya
-            const wadahKatalog = document.getElementById('katalogBahanBakuContainer');
-            if (wadahKatalog) {
-                wadahKatalog.scrollIntoView({behavior: 'smooth', block: 'start'});
-            }
-        };
+       
 
         // ==========================================
         // 2. FITUR AMBIL & TAMPILKAN BAHAN BAKU (Berdiri Sendiri)
@@ -984,6 +989,7 @@ onAuthStateChanged(auth, async (user) => {
     </script>
 </body>
 </html>
+
 
 
 
