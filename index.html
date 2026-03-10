@@ -524,15 +524,50 @@ window.hapusBahanBaku = async (docId) => {
             }
         };
 
-        window.loginAkun = async () => {
+       window.loginAkun = async () => {
             const email = document.getElementById('emailLogin').value;
             const password = document.getElementById('passwordLogin').value;
+
+            // 1. VALIDASI: Cegah tombol login ditekan jika kotak masih kosong
+            if (!email || !password) {
+                alert('Peringatan: Harap isi email dan password Anda terlebih dahulu!');
+                return; // Hentikan proses di sini, jangan kirim ke Firebase
+            }
+
+            // Ambil elemen tombol untuk memberi efek loading
+            const btnLogin = document.querySelector('#loginModal .btn-primary');
+            const teksAsli = btnLogin.innerHTML;
+
             try {
+                // Beri efek loading saat sedang mengecek ke server
+                btnLogin.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memeriksa...';
+                btnLogin.disabled = true;
+
                 await signInWithEmailAndPassword(auth, email, password);
+                
+                // Jika berhasil
                 alert('Login berhasil!');
-                closeModal('loginModal');
+                window.closeModal('loginModal');
+                
+                // Bersihkan form
+                document.getElementById('emailLogin').value = '';
+                document.getElementById('passwordLogin').value = '';
+
             } catch (e) {
-                alert('Password salah atau email belum terdaftar!');
+                // 2. TANGKAP ERROR SPESIFIK: Beri tahu pengguna apa yang salah
+                console.error("Kode Error Login:", e.code);
+                
+                if (e.code === 'auth/invalid-email') {
+                    alert('Format email tidak valid! (Pastikan menggunakan @gmail.com dll)');
+                } else if (e.code === 'auth/invalid-login-credentials' || e.code === 'auth/user-not-found' || e.code === 'auth/wrong-password') {
+                    alert('Gagal Login: Email belum terdaftar atau Password Anda salah!');
+                } else {
+                    alert('Terjadi kesalahan saat login: ' + e.message);
+                }
+            } finally {
+                // Kembalikan tombol seperti semula baik sukses maupun gagal
+                btnLogin.innerHTML = teksAsli;
+                btnLogin.disabled = false;
             }
         };
     
@@ -1120,6 +1155,7 @@ window.setujuOlehIKM = async (idPesanan, idBahan, jumlahPesan) => {
 </script>
 </body>
 </html>
+
 
 
 
