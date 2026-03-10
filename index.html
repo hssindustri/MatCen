@@ -957,10 +957,12 @@ onAuthStateChanged(auth, async (user) => {
                     window.logout(); 
                 }
 
-                // --- PEMANGGILAN KATALOG YANG BENAR ---
+// --- PEMANGGILAN KATALOG YANG BENAR ---
                 // Hanya panggil katalog jika user bukan pending
-                if (isValidUser && window.muatDaftarBahan) {
-                    window.muatDaftarBahan();
+                if (isValidUser) {
+                    if (window.muatDaftarBahan) window.muatDaftarBahan();
+                    // PENAMBAHAN: Panggil riwayat pesanan setelah login berhasil
+                    if (window.muatDaftarPesanan) window.muatDaftarPesanan(); 
                 }
 
             } else {
@@ -971,151 +973,154 @@ onAuthStateChanged(auth, async (user) => {
             console.error("Error mengambil data user:", error);
         }
     } else {
-        // ... (Kondisi saat logout tetap sama seperti sebelumnya) ...
         if(document.getElementById('navLogin')) document.getElementById('navLogin').style.display = 'block';
         if(document.getElementById('navUser')) document.getElementById('navUser').style.display = 'none';
         if(document.getElementById('adminDashboard')) document.getElementById('adminDashboard').style.display = 'none';
         if(document.getElementById('supplierDashboard')) document.getElementById('supplierDashboard').style.display = 'none';
+        if(document.getElementById('ikmDashboard')) document.getElementById('ikmDashboard').style.display = 'none';
         if(document.getElementById('navAdmin')) document.getElementById('navAdmin').style.display = 'none';
         
         const wadahKatalog = document.getElementById('katalogBahanBakuContainer');
         if (wadahKatalog) {
+            // INI ADALAH BAGIAN YANG SEMPAT TERHAPUS PENUTUPNYA
             wadahKatalog.innerHTML = `
                 <div style="grid-column: 1 / -1; text-align: center; padding: 50px 20px; background: #fff3e0; border-radius: 15px; border: 2px dashed #ffb74d;">
                     <i class="fas fa-lock" style="font-size: 3rem; color: #e65100; margin-bottom: 15px;"></i>
                     <h3 style="color: #e65100; font-size: 1.5rem; margin-bottom: 10px;">Katalog Terkunci</h3>
                     <p style="color: var(--text-dark); font-size: 1rem;">Silakan <b>Log In</b> atau <b>Daftar Akun</b> terlebih dahulu untuk melihat detail bahan baku.</p>
                 </div>
-        // ==========================================
-        // FITUR SIKLUS TRANSAKSI B2B (SUPPLIER & IKM)
-        // ==========================================
+            `; 
+        }
+    }
+}); // <-- INI ADALAH PENUTUP FUNGSI LOGIN YANG JUGA SEMPAT TERHAPUS
 
-        // 1. FUNGSI PEMICU (Jalankan ini di onAuthStateChanged saat user login)
-        window.muatDaftarPesanan = async () => {
-            const role = window.currentUserRole;
-            const email = auth.currentUser.email;
+// ==========================================
+// FITUR SIKLUS TRANSAKSI B2B (SUPPLIER & IKM)
+// ==========================================
 
-            let wadah = '';
-            let q = null;
+window.muatDaftarPesanan = async () => {
+    const role = window.currentUserRole;
+    const email = auth.currentUser.email;
 
-            if (role === 'supplier') {
-                wadah = document.getElementById('daftarPesananSupplier');
-                q = query(collection(db, 'pesanan'), where('supplier_email', '==', email));
-            } else if (role === 'industri') {
-                wadah = document.getElementById('daftarPesananIKM');
-                q = query(collection(db, 'pesanan'), where('pembeli_email', '==', email));
-            } else {
-                return; // Admin/Pembina tidak melihat ini dulu
+    let wadah = '';
+    let q = null;
+
+    if (role === 'supplier') {
+        wadah = document.getElementById('daftarPesananSupplier');
+        // Panggil fungsi Firebase Database
+        q = query(collection(db, 'pesanan'), where('supplier_email', '==', email));
+    } else if (role === 'industri') {
+        wadah = document.getElementById('daftarPesananIKM');
+        q = query(collection(db, 'pesanan'), where('pembeli_email', '==', email));
+    } else {
+        return; 
+    }
+
+    if (!wadah) return;
+    wadah.innerHTML = "Memuat data transaksi...";
+
+    const snapshot = await getDocs(q);
+    if (snapshot.empty) {
+        wadah.innerHTML = "<p>Belum ada transaksi.</p>"; return;
+    }
+
+    let html = '';
+    snapshot.forEach((docSnap) => {
+        const data = docSnap.data();
+        const id = docSnap.id;
+        
+        html += `
+        <div style="background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-left: 5px solid ${warnaStatus(data.status_pesanan)}">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                <strong>${data.nama_bahan} (${data.jumlah_pesan} ${data.satuan})</strong>
+                <span style="background: ${warnaStatus(data.status_pesanan)}; color: white; padding: 3px 10px; border-radius: 15px; font-size: 0.8rem;">${data.status_pesanan}</span>
+            </div>
+            <p style="font-size: 0.85rem; color: #666; margin: 5px 0;">Dokumen PO: <a href="${data.url_dokumen_po}" target="_blank" style="color: var(--primary-color);">Lihat Berkas</a></p>
+            ${data.catatan_supplier ? `<div style="background: #fdf5e6; padding: 10px; font-size: 0.85rem; margin-top: 10px; border-radius: 5px;"><strong>Pesan Supplier:</strong> ${data.catatan_supplier}</div>` : ''}
+            
+            <div style="margin-top: 15px; display: flex; gap: 10px;">
+                ${tombolAksiPesanan(role, data.status_pesanan, id, data.id_bahan, data.jumlah_pesan)}
+            </div>
+        </div>`;
+    });
+    wadah.innerHTML = html;
+};
+
+// Bantuan Warna Status
+const warnaStatus = (status) => {
+    if(status === 'Menunggu Konfirmasi') return '#E6A817';
+    if(status === 'Menunggu Persetujuan IKM') return '#17a2b8';
+    if(status === 'Transaksi Berjalan') return '#0056b3';
+    if(status === 'Selesai') return '#28a745';
+    return '#dc3545'; 
+};
+
+// Bantuan Kemunculan Tombol Sesuai SOP
+const tombolAksiPesanan = (role, status, idPesanan, idBahan, jumlah) => {
+    let tombol = '';
+    if (role === 'supplier' && status === 'Menunggu Konfirmasi') {
+        tombol += `<button onclick="bukaKonfirmasiSupplier('${idPesanan}')" class="btn-primary" style="background: #28a745; padding: 5px 15px; font-size: 0.85rem;">Terima & Beri Uraian</button>`;
+        tombol += `<button onclick="tolakPesanan('${idPesanan}')" class="btn-secondary" style="background: #dc3545; color: white; padding: 5px 15px; font-size: 0.85rem;">Tolak Pesanan</button>`;
+    } 
+    else if (role === 'industri' && status === 'Menunggu Persetujuan IKM') {
+        tombol += `<button onclick="setujuOlehIKM('${idPesanan}', '${idBahan}', ${jumlah})" class="btn-primary" style="background: #28a745; padding: 5px 15px; font-size: 0.85rem;">Setuju & Lanjutkan</button>`;
+        tombol += `<button onclick="batalOlehIKM('${idPesanan}')" class="btn-secondary" style="background: #dc3545; color: white; padding: 5px 15px; font-size: 0.85rem;">Batalkan</button>`;
+    }
+    else if (role === 'industri' && status === 'Transaksi Berjalan') {
+        tombol += `<button onclick="pesananSelesai('${idPesanan}')" class="btn-primary" style="padding: 5px 15px; font-size: 0.85rem;"><i class="fas fa-box-open"></i> Barang Telah Diterima</button>`;
+    }
+    return tombol;
+};
+
+// --- AKSI PERUBAHAN STATUS KE DATABASE ---
+window.tolakPesanan = async (id) => {
+    if(confirm('Tolak pesanan ini?')) { await updateDoc(doc(db, 'pesanan', id), { status_pesanan: 'Ditolak Supplier' }); window.muatDaftarPesanan(); }
+};
+window.batalOlehIKM = async (id) => {
+    if(confirm('Batalkan pesanan ini?')) { await updateDoc(doc(db, 'pesanan', id), { status_pesanan: 'Dibatalkan IKM' }); window.muatDaftarPesanan(); }
+};
+window.pesananSelesai = async (id) => {
+    if(confirm('Tandai transaksi selesai?')) { await updateDoc(doc(db, 'pesanan', id), { status_pesanan: 'Selesai' }); window.muatDaftarPesanan(); }
+};
+
+// Aksi Konfirmasi Supplier (Buka Modal)
+window.bukaKonfirmasiSupplier = (id) => {
+    document.getElementById('idPesananKonfirmasi').value = id;
+    document.getElementById('catatanKonfirmasi').value = '';
+    window.openModal('modalKonfirmasiSupplier');
+};
+window.prosesKonfirmasiSupplier = async () => {
+    const id = document.getElementById('idPesananKonfirmasi').value;
+    const catatan = document.getElementById('catatanKonfirmasi').value;
+    await updateDoc(doc(db, 'pesanan', id), { status_pesanan: 'Menunggu Persetujuan IKM', catatan_supplier: catatan });
+    window.closeModal('modalKonfirmasiSupplier'); window.muatDaftarPesanan();
+};
+
+// AKSI FINAL: IKM SETUJU -> POTONG STOK
+window.setujuOlehIKM = async (idPesanan, idBahan, jumlahPesan) => {
+    if(confirm('Setujui transaksi? Stok bahan baku akan dipotong dari sistem.')) {
+        try {
+            // 1. Ubah Status
+            await updateDoc(doc(db, 'pesanan', idPesanan), { status_pesanan: 'Transaksi Berjalan' });
+            // 2. Potong Stok
+            const bahanRef = doc(db, 'bahan_baku', idBahan);
+            const bahanSnap = await getDoc(bahanRef);
+            if(bahanSnap.exists()) {
+                const sisa = bahanSnap.data().jumlah - jumlahPesan;
+                await updateDoc(bahanRef, { jumlah: sisa });
             }
-
-            if (!wadah) return;
-            wadah.innerHTML = "Memuat data transaksi...";
-
-            const snapshot = await getDocs(q);
-            if (snapshot.empty) {
-                wadah.innerHTML = "<p>Belum ada transaksi.</p>"; return;
-            }
-
-            let html = '';
-            snapshot.forEach((docSnap) => {
-                const data = docSnap.data();
-                const id = docSnap.id;
-                
-                // Desain Kartu Transaksi
-                html += `
-                <div style="background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-left: 5px solid ${warnaStatus(data.status_pesanan)}">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                        <strong>${data.nama_bahan} (${data.jumlah_pesan} ${data.satuan})</strong>
-                        <span style="background: ${warnaStatus(data.status_pesanan)}; color: white; padding: 3px 10px; border-radius: 15px; font-size: 0.8rem;">${data.status_pesanan}</span>
-                    </div>
-                    <p style="font-size: 0.85rem; color: #666; margin: 5px 0;">Dokumen PO: <a href="${data.url_dokumen_po}" target="_blank" style="color: var(--primary-color);">Lihat Berkas</a></p>
-                    ${data.catatan_supplier ? `<div style="background: #fdf5e6; padding: 10px; font-size: 0.85rem; margin-top: 10px; border-radius: 5px;"><strong>Pesan Supplier:</strong> ${data.catatan_supplier}</div>` : ''}
-                    
-                    <div style="margin-top: 15px; display: flex; gap: 10px;">
-                        ${tombolAksiPesanan(role, data.status_pesanan, id, data.id_bahan, data.jumlah_pesan)}
-                    </div>
-                </div>`;
-            });
-            wadah.innerHTML = html;
-        };
-
-        // Bantuan Warna Status
-        const warnaStatus = (status) => {
-            if(status === 'Menunggu Konfirmasi') return '#E6A817';
-            if(status === 'Menunggu Persetujuan IKM') return '#17a2b8';
-            if(status === 'Transaksi Berjalan') return '#0056b3';
-            if(status === 'Selesai') return '#28a745';
-            return '#dc3545'; // Batal / Tolak
-        };
-
-        // Bantuan Kemunculan Tombol Sesuai SOP Anda
-        const tombolAksiPesanan = (role, status, idPesanan, idBahan, jumlah) => {
-            let tombol = '';
-            if (role === 'supplier' && status === 'Menunggu Konfirmasi') {
-                tombol += `<button onclick="bukaKonfirmasiSupplier('${idPesanan}')" class="btn-primary" style="background: #28a745; padding: 5px 15px; font-size: 0.85rem;">Terima & Beri Uraian</button>`;
-                tombol += `<button onclick="tolakPesanan('${idPesanan}')" class="btn-secondary" style="background: #dc3545; color: white; padding: 5px 15px; font-size: 0.85rem;">Tolak Pesanan</button>`;
-            } 
-            else if (role === 'industri' && status === 'Menunggu Persetujuan IKM') {
-                // DI SINI STOK AKAN DIPOTONG JIKA SETUJU
-                tombol += `<button onclick="setujuOlehIKM('${idPesanan}', '${idBahan}', ${jumlah})" class="btn-primary" style="background: #28a745; padding: 5px 15px; font-size: 0.85rem;">Setuju & Lanjutkan</button>`;
-                tombol += `<button onclick="batalOlehIKM('${idPesanan}')" class="btn-secondary" style="background: #dc3545; color: white; padding: 5px 15px; font-size: 0.85rem;">Batalkan</button>`;
-            }
-            else if (role === 'industri' && status === 'Transaksi Berjalan') {
-                tombol += `<button onclick="pesananSelesai('${idPesanan}')" class="btn-primary" style="padding: 5px 15px; font-size: 0.85rem;"><i class="fas fa-box-open"></i> Barang Telah Diterima</button>`;
-            }
-            return tombol;
-        };
-
-        // --- AKSI PERUBAHAN STATUS KE DATABASE ---
-        window.tolakPesanan = async (id) => {
-            if(confirm('Tolak pesanan ini?')) { await updateDoc(doc(db, 'pesanan', id), { status_pesanan: 'Ditolak Supplier' }); muatDaftarPesanan(); }
-        };
-        window.batalOlehIKM = async (id) => {
-            if(confirm('Batalkan pesanan ini?')) { await updateDoc(doc(db, 'pesanan', id), { status_pesanan: 'Dibatalkan IKM' }); muatDaftarPesanan(); }
-        };
-        window.pesananSelesai = async (id) => {
-            if(confirm('Tandai transaksi selesai?')) { await updateDoc(doc(db, 'pesanan', id), { status_pesanan: 'Selesai' }); muatDaftarPesanan(); }
-        };
-
-        // Aksi Konfirmasi Supplier (Buka Modal)
-        window.bukaKonfirmasiSupplier = (id) => {
-            document.getElementById('idPesananKonfirmasi').value = id;
-            document.getElementById('catatanKonfirmasi').value = '';
-            openModal('modalKonfirmasiSupplier');
-        };
-        window.prosesKonfirmasiSupplier = async () => {
-            const id = document.getElementById('idPesananKonfirmasi').value;
-            const catatan = document.getElementById('catatanKonfirmasi').value;
-            await updateDoc(doc(db, 'pesanan', id), { status_pesanan: 'Menunggu Persetujuan IKM', catatan_supplier: catatan });
-            closeModal('modalKonfirmasiSupplier'); muatDaftarPesanan();
-        };
-
-        // AKSI FINAL: IKM SETUJU -> POTONG STOK
-        window.setujuOlehIKM = async (idPesanan, idBahan, jumlahPesan) => {
-            if(confirm('Setujui transaksi? Stok bahan baku akan dipotong dari sistem.')) {
-                try {
-                    // 1. Ubah Status
-                    await updateDoc(doc(db, 'pesanan', idPesanan), { status_pesanan: 'Transaksi Berjalan' });
-                    // 2. Potong Stok
-                    const bahanRef = doc(db, 'bahan_baku', idBahan);
-                    const bahanSnap = await getDoc(bahanRef);
-                    if(bahanSnap.exists()) {
-                        const sisa = bahanSnap.data().jumlah - jumlahPesan;
-                        await updateDoc(bahanRef, { jumlah: sisa });
-                    }
-                    alert("Transaksi berjalan! Stok berhasil diamankan.");
-                    muatDaftarPesanan(); 
-                    if(window.muatDaftarBahan) window.muatDaftarBahan(); // Refresh katalog
-                } catch (e) {
-                    alert("Gagal memproses persetujuan: " + e.message);
-                }
-            }
-        };
-          
-});
-    </script>
+            alert("Transaksi berjalan! Stok berhasil diamankan.");
+            window.muatDaftarPesanan(); 
+            if(window.muatDaftarBahan) window.muatDaftarBahan(); // Refresh katalog
+        } catch (e) {
+            alert("Gagal memproses persetujuan: " + e.message);
+        }
+    }
+};
+</script>
 </body>
 </html>
+
 
 
 
