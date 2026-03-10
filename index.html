@@ -309,7 +309,7 @@
     // PEMESANAN IKM
 <div id="modalPemesanan" class="modal" style="display:none;">
     <div class="modal-content" style="max-width: 500px;">
-        <span class="close" onclick="closeModal('modalPemesanan')">&times;</span>
+        <span class="close" onclick="closeModal('modalPemesanan')">×</span>
         <h2 style="color: var(--primary-color); margin-bottom: 20px;"><i class="fas fa-shopping-cart"></i> Formulir Pemesanan</h2>
         
         <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid var(--secondary-color);">
@@ -338,16 +338,20 @@
             <textarea id="inputCatatanPesan" rows="2" placeholder="Tulis pesan untuk supplier..." style="width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #ccc;"></textarea>
 
             <button onclick="simpanPesanan()" id="btnKirimPesanan" class="btn-primary" style="width: 100%; font-size: 1.1rem; padding: 12px; border-radius: 25px;"><i class="fas fa-paper-plane"></i> Kirim Pesanan Sekarang</button>
-       <div id="modalKonfirmasiSupplier" class="modal" style="display:none;">
+        </div>
+    </div>
+</div> <div id="modalKonfirmasiSupplier" class="modal" style="display:none;">
     <div class="modal-content" style="max-width: 400px;">
-        <span class="close" onclick="closeModal('modalKonfirmasiSupplier')">&times;</span>
+        <span class="close" onclick="closeModal('modalKonfirmasiSupplier')">×</span>
         <h2 style="color: var(--primary-color);"><i class="fas fa-check-circle"></i> Konfirmasi Pesanan</h2>
+        
         <input type="hidden" id="idPesananKonfirmasi">
+        
         <label style="font-weight: 600; font-size: 0.9rem;">Uraian / Pesan untuk IKM:</label>
         <textarea id="catatanKonfirmasi" placeholder="Misal: Barang ready, estimasi kirim 2 hari, biaya ongkir ditanggung pembeli..." rows="4" style="width:100%; padding:10px; margin-bottom:15px; border-radius:8px; border:1px solid #ccc;"></textarea>
+        
         <button onclick="prosesKonfirmasiSupplier()" class="btn-primary" style="width:100%;"><i class="fas fa-paper-plane"></i> Kirim ke IKM</button>
     </div>
-</div>
 </div>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
@@ -1155,6 +1159,7 @@ window.setujuOlehIKM = async (idPesanan, idBahan, jumlahPesan) => {
 </script>
 </body>
 </html>
+
 
 
 
