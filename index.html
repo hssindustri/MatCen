@@ -909,13 +909,19 @@ window.hapusBahanBaku = async (docId) => {
                     })
                 });
                 
-                const resultUpload = await responseUpload.json();
-                let urlPODrive = "";
-                if(resultUpload.status === "success") {
-                    urlPODrive = resultUpload.url;
-                } else {
-                    throw new Error("Gagal mengunggah dokumen PO ke Drive.");
-                }
+               const resultUpload = await responseUpload.json();
+
+// 👇 TAMBAHKAN BARIS INI UNTUK DEBUGGING 👇
+console.log("Respon Asli dari Server Google:", resultUpload); 
+// 👆 ------------------------------------- 👆
+
+let urlPODrive = "";
+if(resultUpload.status === "success") {
+    urlPODrive = resultUpload.url;
+} else {
+    // Biarkan bagian ini tetap seperti aslinya
+    throw new Error("Gagal mengunggah dokumen PO ke Drive.");
+}
 
                 // 2. SIMPAN DATA PESANAN KE FIREBASE
                 btnKirim.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan Transaksi...';
