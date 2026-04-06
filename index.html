@@ -507,20 +507,19 @@ window.muatDaftarBahan = async (kategoriFilter = 'semua') => {
     }
 };
 
-window.logout = async () => { /* Logika logout sama */ };
-window.loadPending = async () => { /* Logika pending sama */ };
-window.approve = async (uid) => { /* Logika approve sama */ };
-
-// ==========================================
-// FITUR IKM: BUKA MODAL PESAN & HITUNG HARGA
-// ==========================================
-window.hargaSatuanAktif = 0; // Variabel penyimpan harga sementara
-
-window.bukaModalPesan = (idBahan, nama, stok, satuan, supplier, lokasi, hargaSatuan) => {
-    if (window.currentUserRole !== 'industri' && window.currentUserRole !== 'admin' && window.currentUserRole !== 'pembina') {
-        alert("Hanya akun IKM/Industri yang dapat mengajukan pemesanan."); return;
+window.logout = async () => {
+    if (confirm("Apakah Anda yakin ingin keluar?")) {
+        try {
+            await signOut(auth);
+            alert("Berhasil keluar.");
+            // Paksa reload halaman agar semua status dashboard bersih
+            window.location.href = window.location.pathname; 
+        } catch (error) {
+            console.error("Gagal Logout:", error);
+            alert("Gagal keluar, coba lagi.");
+        }
     }
-
+};
     // Reset dan atur UI harga
     window.hargaSatuanAktif = hargaSatuan;
     document.getElementById('tampilTotalHarga').textContent = '0';
