@@ -326,8 +326,18 @@ const firebaseConfig = {
     storageBucket: "matcen-industri.firebasestorage.app",
     messagingSenderId: "46754979784",
     appId: "1:46754979784:web:dda78109bb3ca33a78eafd"
+window.logout = async () => {
+    if (confirm("Apakah Anda yakin ingin keluar?")) {
+        try {
+            await signOut(auth);
+            alert("Anda telah keluar.");
+            window.location.reload(); // Refresh halaman untuk membersihkan sisa session
+        } catch (error) {
+            console.error("Gagal Logout:", error);
+        }
+    }
 };
-
+    
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
@@ -629,71 +639,46 @@ window.simpanPesanan = async () => {
     }
 };
         
-onAuthStateChanged(auth, async (user) => { /* Logika AuthStateChanged persis sama dengan sebelumnya */
+onAuthStateChanged(auth, async (user) => {
+    const navLogin = document.getElementById('navLogin');
+    const navUser = document.getElementById('navUser');
+    const navAdmin = document.getElementById('navAdmin');
+    const userName = document.getElementById('userName');
+
     if (user) {
-        if(document.getElementById('navLogin')) document.getElementById('navLogin').style.display = 'none';
-        if(document.getElementById('navUser')) document.getElementById('navUser').style.display = 'flex';
-        if(document.getElementById('userName')) document.getElementById('userName').textContent = user.email;
+        // JIKA USER LOGIN
+        if (navLogin) navLogin.style.display = 'none';
+        if (navUser) navUser.style.display = 'flex'; // Pastikan pakai flex agar icon & teks sejajar
+        if (userName) userName.textContent = user.email;
 
-        try {
-            const userDoc = await getDoc(doc(db, 'users', user.uid));
-            if (userDoc.exists()) {
-                const data = userDoc.data();
-                let isValidUser = false;
-                
-                if (data.tipe === 'admin' || (data.tipe === 'pembina' && data.verified === true)) {
-                    window.currentUserRole = data.tipe === 'admin' ? 'admin' : 'pembina';
-                    document.getElementById('adminDashboard').style.display = 'block';
-                    document.getElementById('supplierDashboard').style.display = 'none';
-                    if(document.getElementById('navAdmin')) document.getElementById('navAdmin').style.display = 'block';
-                    if(window.loadPending) window.loadPending();
-                    isValidUser = true;
-                } else if (data.tipe === 'supplier' && data.verified === true) {
-                    window.currentUserRole = 'supplier';
-                    document.getElementById('supplierDashboard').style.display = 'block';
-                    document.getElementById('adminDashboard').style.display = 'none';
-                    if(document.getElementById('navAdmin')) document.getElementById('navAdmin').style.display = 'none';
-                    isValidUser = true;
-                } else if (data.tipe === 'industri' && data.verified === true) {
-                    window.currentUserRole = 'industri';
-                    document.getElementById('adminDashboard').style.display = 'none';
-                    document.getElementById('supplierDashboard').style.display = 'none';
-                    document.getElementById('ikmDashboard').style.display = 'block';
-                    if(document.getElementById('navAdmin')) document.getElementById('navAdmin').style.display = 'none';
-                    isValidUser = true;
-                } else {
-                    alert('Akun Anda masih berstatus PENDING. Silakan tunggu verifikasi.');
-                    window.logout(); 
-                }
-
-                if (isValidUser) {
-                    if (window.muatDaftarBahan) window.muatDaftarBahan();
-                    if (window.muatDaftarPesanan) window.muatDaftarPesanan(); 
-                }
-            } else {
-                alert('Gagal login: Data profil tidak ditemukan di database.');
-                window.logout();
+        // Cek Role User
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        if (userDoc.exists()) {
+            const data = userDoc.data();
+            // Tampilkan Panel Verifikasi jika Admin
+            if (data.tipe === 'admin' || (data.tipe === 'pembina' && data.verified === true)) {
+                if (navAdmin) navAdmin.style.display = 'block';
+                document.getElementById('adminDashboard').style.display = 'block';
             }
-        } catch (error) { console.error("Error mengambil data user:", error); }
-    } else {
-        if(document.getElementById('navLogin')) document.getElementById('navLogin').style.display = 'block';
-        if(document.getElementById('navUser')) document.getElementById('navUser').style.display = 'none';
-        if(document.getElementById('adminDashboard')) document.getElementById('adminDashboard').style.display = 'none';
-        if(document.getElementById('supplierDashboard')) document.getElementById('supplierDashboard').style.display = 'none';
-        if(document.getElementById('ikmDashboard')) document.getElementById('ikmDashboard').style.display = 'none';
-        if(document.getElementById('navAdmin')) document.getElementById('navAdmin').style.display = 'none';
-        
-        const wadahKatalog = document.getElementById('katalogBahanBakuContainer');
-        if (wadahKatalog) {
-            wadahKatalog.innerHTML = `
-                <div style="grid-column: 1 / -1; text-align: center; padding: 50px 20px; background: #fff3e0; border-radius: 15px; border: 2px dashed #ffb74d;">
-                    <i class="fas fa-lock" style="font-size: 3rem; color: #e65100; margin-bottom: 15px;"></i>
-                    <h3 style="color: #e65100; font-size: 1.5rem; margin-bottom: 10px;">Katalog Terkunci</h3>
-                    <p style="color: var(--text-dark); font-size: 1rem;">Silakan <b>Log In</b> atau <b>Daftar Akun</b> terlebih dahulu untuk melihat detail bahan baku.</p>
-                </div>`; 
+            // Tampilkan Dashboard sesuai Role
+            if (data.tipe === 'supplier' && data.verified === true) {
+                document.getElementById('supplierDashboard').style.display = 'block';
+            } else if (data.tipe === 'industri' && data.verified === true) {
+                document.getElementById('ikmDashboard').style.display = 'block';
+            }
         }
+    } else {
+        // JIKA USER LOGOUT
+        if (navLogin) navLogin.style.display = 'block';
+        if (navUser) navUser.style.display = 'none';
+        if (navAdmin) navAdmin.style.display = 'none';
+        
+        // Sembunyikan semua dashboard
+        document.getElementById('adminDashboard').style.display = 'none';
+        document.getElementById('supplierDashboard').style.display = 'none';
+        document.getElementById('ikmDashboard').style.display = 'none';
     }
-}); 
+});
 
 // ==========================================
 // DAFTAR PESANAN & TRANSAKSI (ANTI STOK MINUS)
