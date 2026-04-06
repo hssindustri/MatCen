@@ -739,6 +739,8 @@ window.hapusBahanBaku = async (docId) => {
 
                 querySnapshot.forEach((docSnap) => {
                     const data = docSnap.data();
+                    const hargaBahan = data.harga ? parseInt(data.harga) : 0; // Ambil harga, default 0 jika kosong
+                    const hargaRupiah = hargaBahan.toLocaleString('id-ID');   // Ubah ke format Rp 50.000
                     const docId = docSnap.id; 
 
                     let tombolHapus = '';
@@ -750,7 +752,7 @@ window.hapusBahanBaku = async (docId) => {
                         `;
                     }
 
-                    htmlKonten += `
+                   htmlKonten += `
                         <div style="background: white; border-radius: 15px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #eee; position: relative;">
                             
                             <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
@@ -763,6 +765,8 @@ window.hapusBahanBaku = async (docId) => {
                             </div>
 
                             <h3 style="color: var(--text-dark); margin-bottom: 5px; font-size: 1.2rem;">${data.nama_bahan}</h3>
+                            
+                            <h4 style="color: #2e7d32; margin: 5px 0 10px 0; font-size: 1.1rem;">Rp ${hargaRupiah} <span style="font-size: 0.8em; color: gray; font-weight: normal;">/ ${data.satuan}</span></h4>
                             <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 15px; height: 40px; overflow: hidden;">${data.spesifikasi}</p>
                             
                             <div style="background: #f9f9f9; padding: 10px; border-radius: 8px; margin-bottom: 15px; text-align: center;">
@@ -770,9 +774,9 @@ window.hapusBahanBaku = async (docId) => {
                                 <strong style="font-size: 1.3rem; color: var(--primary-color);">${data.jumlah} ${data.satuan}</strong>
                             </div>
 
-                            <button class="btn-primary" onclick="bukaModalPesan('${docId}', '${data.nama_bahan.replace(/'/g, "\\'")}', ${data.jumlah}, '${data.satuan}', '${data.supplier_email}', '${data.lokasi}')" style="width: 100%; border-radius: 25px; font-size: 0.95rem;">
-    <i class="fas fa-shopping-cart"></i> Ajukan Pemesanan
-</button>
+                            <button class="btn-primary" onclick="bukaModalPesan('${docId}', '${data.nama_bahan.replace(/'/g, "\\'")}', ${data.jumlah}, '${data.satuan}', '${data.supplier_email}', '${data.lokasi}', ${hargaBahan})" style="width: 100%; border-radius: 25px; font-size: 0.95rem;">
+                                <i class="fas fa-shopping-cart"></i> Ajukan Pemesanan
+                            </button>
                             
                             ${tombolHapus}
                         </div>
@@ -854,7 +858,7 @@ window.hapusBahanBaku = async (docId) => {
 // ==========================================
         // FITUR IKM: BUKA MODAL PEMESANAN
         // ==========================================
-        window.bukaModalPesan = (idBahan, nama, stok, satuan, supplier, lokasi) => {
+        window.bukaModalPesan = (idBahan, nama, stok, satuan, supplier, lokasi, harga) => { // <-- Ada tambahan parameter "harga" di sini
             // Pastikan user yang klik adalah IKM (atau admin/pembina untuk testing)
             if (window.currentUserRole !== 'industri' && window.currentUserRole !== 'admin' && window.currentUserRole !== 'pembina') {
                 alert("Hanya akun IKM/Industri yang dapat mengajukan pemesanan.");
@@ -867,6 +871,21 @@ window.hapusBahanBaku = async (docId) => {
             document.getElementById('stokTersediaPesan').textContent = stok;
             document.getElementById('satuanPesanLabel').textContent = satuan;
             document.getElementById('tampilSatuanPesan').value = satuan;
+
+            // 👇 INI TAMBAHAN UNTUK MEMASUKKAN HARGA KE MODAL 👇
+            document.getElementById('hargaSatuanHidden').value = harga;
+            
+            // Format harga satuan agar ada titiknya (contoh: 50.000)
+            const elemenTampilHarga = document.getElementById('tampilHargaSatuan');
+            if(elemenTampilHarga) elemenTampilHarga.innerText = harga.toLocaleString('id-ID');
+            
+            // Reset kalkulasi total dan input jumlah setiap kali modal dibuka baru
+            const elemenTotalHarga = document.getElementById('totalHargaPesan');
+            if(elemenTotalHarga) elemenTotalHarga.innerText = "0";
+            
+            const inputJumlah = document.getElementById('inputJumlahPesan');
+            if(inputJumlah) inputJumlah.value = "";
+            // 👆 ========================================== 👆
 
             // Simpan data ke input tersembunyi
             document.getElementById('idBahanHidden').value = idBahan;
