@@ -290,6 +290,11 @@
                     <input type="text" id="inputSatuan" placeholder="Kg, Ton, Liter, dll" style="width: 100%; padding: 10px;">
                 </div>
             </div>
+           
+            <div style="margin-bottom: 15px;">
+    <label style="font-weight: 600; font-size: 0.9rem;">Harga per Satuan (Rp):</label>
+    <input type="number" id="inputHargaBahan" placeholder="Contoh: 50000" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc;" min="0">
+</div>
 
             <label style="font-weight: 600; font-size: 0.9rem;">Lokasi Penyimpanan MatCen:</label>
             <select id="inputLokasi" style="width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #ccc;">
@@ -323,12 +328,19 @@
             <input type="hidden" id="emailSupplierHidden">
             <input type="hidden" id="satuanHidden">
             <input type="hidden" id="stokMaksimalHidden">
+            <input type="hidden" id="hargaSatuanHidden" value="0">
+<p style="margin: 0 0 10px 0; font-size: 0.9rem; color: #333;">Harga per Satuan: <strong style="color: green;">Rp <span id="tampilHargaSatuan">0</span></strong></p>
 
             <label style="font-weight: 600; font-size: 0.9rem;">Jumlah Dipesan:</label>
             <div style="display: flex; gap: 10px; margin-bottom: 15px;">
                 <input type="number" id="inputJumlahPesan" placeholder="Contoh: 100" style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #ccc;" min="1">
                 <input type="text" id="tampilSatuanPesan" disabled style="width: 80px; padding: 10px; background: #eee; border: 1px solid #ccc; border-radius: 8px; text-align: center; font-weight: bold;">
             </div>
+            
+            <div style="margin-bottom: 15px; padding: 10px; background: #e8f5e9; border-radius: 8px; text-align: left;">
+    <label style="font-weight: 600; font-size: 0.9rem;">Anggaran Keseluruhan Harga:</label>
+    <h3 style="margin: 5px 0 0 0; color: var(--primary-color);">Rp <span id="totalHargaPesan">0</span></h3>
+</div>
 
             <label style="font-weight: 600; font-size: 0.9rem;">Unggah Dokumen PO (Purchase Order):</label>
             <p style="font-size: 0.8rem; color: gray; margin-top: 0; margin-bottom: 5px;">Format: PDF/JPG/PNG. Wajib dilampirkan sebagai bukti pesanan resmi.</p>
@@ -357,8 +369,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 // INI ADALAH SATU-SATUNYA BARIS UNTUK FIRESTORE (Sudah termasuk deleteDoc di ujungnya)
-import { getFirestore, doc, setDoc, getDoc, collection, getDocs, query, where, updateDoc, addDoc, serverTimestamp, deleteDoc } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-storage.js";
+import { getFirestore, doc, setDoc, getDoc, collection, getDocs, query, where, updateDoc, addDoc, serverTimestamp, deleteDoc, runTransaction } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-storage.js";
         
         const firebaseConfig = {
             apiKey: "AIzaSyDlsuZTlENpl1xT36w7mDBk6zWxO9ghbGI",
@@ -388,6 +399,15 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstati
             document.getElementById('formPembina').style.display = tipe === 'pembina' ? 'block' : 'none';
             document.getElementById('formIndustri').style.display = tipe === 'industri' ? 'block' : 'none';
         });
+
+        document.getElementById('inputJumlahPesan').addEventListener('input', function() {
+    const kuantiti = parseInt(this.value) || 0;
+    const harga = parseInt(document.getElementById('hargaSatuanHidden').value) || 0;
+    const total = kuantiti * harga;
+    
+    // Tunjukkan nilai dalam format nombor (contoh: 150.000)
+    document.getElementById('totalHargaPesan').innerText = total.toLocaleString('id-ID');
+});
 
         // --- FITUR TAMBAH SUPPLIER OLEH ADMIN/PEMBINA ---
         const appSekunder = initializeApp(firebaseConfig, "SupplierApp");
@@ -584,6 +604,7 @@ window.hapusBahanBaku = async (docId) => {
     const jumlah = document.getElementById('inputJumlah').value;
     const satuan = document.getElementById('inputSatuan').value;
     const lokasi = document.getElementById('inputLokasi').value;
+    const hargaBahan = parseInt(document.getElementById('inputHargaBahan').value) || 0;
     
     const fileInput = document.getElementById('inputDokumen');
     const btnSimpan = document.getElementById('btnSimpanBahan');
@@ -1143,21 +1164,71 @@ window.prosesKonfirmasiSupplier = async () => {
 window.setujuOlehIKM = async (idPesanan, idBahan, jumlahPesan) => {
     if(confirm('Setujui transaksi? Stok bahan baku akan dipotong dari sistem.')) {
         try {
-            // 1. Ubah Status
-            await updateDoc(doc(db, 'pesanan', idPesanan), { status_pesanan: 'Transaksi Berjalan' });
-            // 2. Potong Stok
-            const bahanRef = doc(db, 'bahan_baku', idBahan);
-            const bahanSnap = await getDoc(bahanRef);
-            if(bahanSnap.exists()) {
-                const sisa = bahanSnap.data().jumlah - jumlahPesan;
-                await updateDoc(bahanRef, { jumlah: sisa });
-            }
-            alert("Transaksi berjalan! Stok berhasil diamankan.");
+            const bahanRef = doc(db, 'bahan_baku', idBahan); // Pastikan nama koleksi betul
+            const pesananRef = doc(db, 'pesanan', idPesanan);
+
+            await runTransaction(db, async (transaction) => {
+                // 1. BACA STOK TERKINI
+                const bahanDoc = await transaction.get(bahanRef);
+                if (!bahanDoc.exists()) {
+                    throw "Ralat: Bahan baku tidak ditemui dalam sistem!";
+                }
+
+                const stokSaatIni = bahanDoc.data().jumlah; // pastikan fieldnya bernama 'jumlah'
+                
+                // 2. SEMAK JIKA STOK MENCUKUPI
+                if (stokSaatIni < jumlahPesan) {
+                    throw `Stok tidak mencukupi! Sisa stok hanya tinggal ${stokSaatIni}.`;
+                }
+
+                // 3. POTONG STOK & KEMAS KINI STATUS (Proses serentak yang selamat)
+                const sisaStok = stokSaatIni - jumlahPesan;
+                transaction.update(bahanRef, { jumlah: sisaStok });
+                transaction.update(pesananRef, { status_pesanan: 'Transaksi Berjalan' });
+            });
+
+            alert("Berjaya! Transaksi sedang berjalan dan stok telah dipotong dengan selamat.");
+            
+            // 4. BATALKAN PESANAN LAIN JIKA STOK HABIS
+            await batalkanPesananTergantung(idBahan);
+
+            // 5. Muat semula senarai paparan
             window.muatDaftarPesanan(); 
-            if(window.muatDaftarBahan) window.muatDaftarBahan(); // Refresh katalog
-        } catch (e) {
-            alert("Gagal memproses persetujuan: " + e.message);
+            if(window.muatDaftarBahan) window.muatDaftarBahan();
+
+        } catch (error) {
+            // Ini akan memaparkan mesej jika stok tidak mencukupi atau berlaku ralat lain
+            alert("Transaksi dibatalkan: " + error);
         }
+    }
+};
+
+// Fungsi tambahan untuk membatalkan pesanan lain yang melebihi baki stok
+const batalkanPesananTergantung = async (idBahan) => {
+    try {
+        const bahanSnap = await getDoc(doc(db, 'bahan_baku', idBahan));
+        if(!bahanSnap.exists()) return;
+        const bakiStokTerkini = bahanSnap.data().jumlah;
+
+        // Cari pesanan lain dengan bahan yang sama yang belum disahkan
+        const q = query(collection(db, "pesanan"), 
+            where("idBahan", "==", idBahan), 
+            where("status_pesanan", "==", "Menunggu Persetujuan IKM") // Ubah jika status awal berbeza
+        );
+        const querySnapshot = await getDocs(q);
+
+        querySnapshot.forEach(async (docSnap) => {
+            const dataPesanan = docSnap.data();
+            if (dataPesanan.jumlahPesan > bakiStokTerkini) {
+                // Kemas kini pesanan kepada Batal jika baki stok tidak cukup
+                await updateDoc(doc(db, 'pesanan', docSnap.id), { 
+                    status_pesanan: 'Batal Automatik',
+                    catatan_sistem: 'Stok telah habis dipesan oleh pihak lain.'
+                });
+            }
+        });
+    } catch(err) {
+        console.log("Ralat semasa menyemak pesanan terbengkalai: ", err);
     }
 };
 </script>
