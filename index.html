@@ -604,7 +604,7 @@ window.hapusBahanBaku = async (docId) => {
     const jumlah = document.getElementById('inputJumlah').value;
     const satuan = document.getElementById('inputSatuan').value;
     const lokasi = document.getElementById('inputLokasi').value;
-    const hargaBahan = parseInt(document.getElementById('inputHargaBahan').value) || 0;
+    const hargaBahan = document.getElementById('inputHargaBahan').value;
     
     const fileInput = document.getElementById('inputDokumen');
     const btnSimpan = document.getElementById('btnSimpanBahan');
@@ -667,8 +667,9 @@ window.hapusBahanBaku = async (docId) => {
             jumlah: Number(jumlah),
             satuan: satuan,
             lokasi: lokasi,
+            harga: Number(hargaBahan), // <--- INI YANG MEMBUAT HARGA TERSIMPAN
             nama_dokumen: namaFile,
-            url_dokumen: urlDokumenDrive, // Link Google Drive tersimpan di sini
+            url_dokumen: urlDokumenDrive, 
             supplier_email: auth.currentUser.email,
             timestamp: serverTimestamp()
         });
@@ -684,6 +685,7 @@ window.hapusBahanBaku = async (docId) => {
         document.getElementById('inputJumlah').value = '';
         document.getElementById('inputSatuan').value = '';
         document.getElementById('inputLokasi').value = '';
+        document.getElementById('inputHargaBahan').value = '';
         fileInput.value = '';
 
         if (window.muatDaftarBahan) window.muatDaftarBahan();
