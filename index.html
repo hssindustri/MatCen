@@ -538,12 +538,26 @@ window.hapusBahanBaku = async (docId) => {
             }
 
             try {
+                // 1. Buat Akun di Authentication
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                
+                // 2. Siapkan data & Simpan ke Firestore
                 data.email = email; 
+                data.timestamp = serverTimestamp(); // Tambahan: agar rapi ada waktu daftarnya
+                
                 await setDoc(doc(db, 'users', userCredential.user.uid), data);
-                alert('Pendaftaran berhasil! Silakan tunggu verifikasi dari Admin.');
+                
+                // 3. Notifikasi Berhasil
+                alert('Pendaftaran berhasil! Silakan tunggu verifikasi dari Admin/Pembina.');
                 closeModal('registerModal');
+                
+                // 4. PENTING: Segera keluarkan (logout) akun yang baru daftar
+                // agar mereka tidak masuk dashboard sebelum diverifikasi
+                await signOut(auth);
+
             } catch (e) {
+                console.error("Error Detail Pendaftaran:", e);
+                // Jika error karena aturan keamanan (Rules), akan muncul di sini
                 alert('Error Pendaftaran: ' + e.message);
             }
         };
