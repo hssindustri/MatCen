@@ -681,24 +681,7 @@ window.hapusBahanBaku = async (docId) => {
                 throw new Error("Gagal mengunggah ke Drive");
             }
         }
-        // 3. Kirim ke Google Drive
-            const responseUpload = await fetch(scriptURL, {
-                // ... (kode tetap sama)
-            });
-            
-            const resultUpload = await responseUpload.json();
-            
-            // 👇 TAMBAHKAN BARIS INI UNTUK MELIHAT JAWABAN GOOGLE 👇
-            console.log("Respon dari Google Drive:", resultUpload);
-            // 👆 ================================================ 👆
-
-            if(resultUpload.status === "success") {
-                urlDokumenDrive = resultUpload.url; 
-            } else {
-                // Modifikasi sedikit peringatannya agar error dari Google terlihat
-                throw new Error("Gagal dari Drive: " + (resultUpload.message || JSON.stringify(resultUpload)));
-            }
-
+       
         btnSimpan.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan ke Database...';
 
         // MENYIMPAN DATA + LINK DRIVE KE FIREBASE
