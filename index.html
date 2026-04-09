@@ -618,8 +618,8 @@ window.hapusBahanBaku = async (docId) => {
     const jumlah = document.getElementById('inputJumlah').value;
     const satuan = document.getElementById('inputSatuan').value;
     const lokasi = document.getElementById('inputLokasi').value;
-    const hargaBahan = document.getElementById('inputHargaBahan').value;
-    
+    const elemenHarga = document.getElementById('inputHargaBahan');
+    const hargaBahan = elemenHarga ? elemenHarga.value : 0;    
     const fileInput = document.getElementById('inputDokumen');
     const btnSimpan = document.getElementById('btnSimpanBahan');
 
