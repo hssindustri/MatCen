@@ -653,7 +653,7 @@ window.hapusBahanBaku = async (docId) => {
             // 2. PASTE "WEB APP URL" DARI GOOGLE APPS SCRIPT DI SINI
             const scriptURL = 'https://script.google.com/macros/s/AKfycbwPdwEyPIyWvbSQBWB1an_EgSNBDiPFPRo0InmN9WO9_WFhC1LqUEiP9hipl4Q2YTul/exec';
             
-            // 3. Kirim ke Google Drive
+           // 3. Kirim ke Google Drive
             const responseUpload = await fetch(scriptURL, { method: 'POST', body: formData });
             
             try {
@@ -673,31 +673,22 @@ window.hapusBahanBaku = async (docId) => {
             }
             
             // Sistem akan otomatis lanjut menyimpan data kategori, harga, dll ke Firebase!
-            
-            const resultUpload = await responseUpload.json();
-            if(resultUpload.status === "success") {
-                urlDokumenDrive = resultUpload.url; // Ini link file yang masuk di Drive Anda!
-            } else {
-                throw new Error("Gagal mengunggah ke Drive");
-            }
-        }
-       
-        btnSimpan.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan ke Database...';
+            btnSimpan.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan ke Database...';
 
-        // MENYIMPAN DATA + LINK DRIVE KE FIREBASE
-        await addDoc(collection(db, 'bahan_baku'), {
-            kategori: kategori,
-            nama_bahan: nama,
-            spesifikasi: spesifikasi,
-            jumlah: Number(jumlah),
-            satuan: satuan,
-            lokasi: lokasi,
-            harga: Number(hargaBahan), // <--- INI YANG MEMBUAT HARGA TERSIMPAN
-            nama_dokumen: namaFile,
-            url_dokumen: urlDokumenDrive, 
-            supplier_email: auth.currentUser.email,
-            timestamp: serverTimestamp()
-        });
+            // MENYIMPAN DATA + LINK DRIVE KE FIREBASE
+            await addDoc(collection(db, 'bahan_baku'), {
+                kategori: kategori,
+                nama_bahan: nama,
+                spesifikasi: spesifikasi,
+                jumlah: Number(jumlah),
+                satuan: satuan,
+                lokasi: lokasi,
+                harga: Number(hargaBahan), // <--- INI YANG MEMBUAT HARGA TERSIMPAN
+                nama_dokumen: namaFile,
+                url_dokumen: urlDokumenDrive, 
+                supplier_email: auth.currentUser.email,
+                timestamp: serverTimestamp()
+            });
 
         // ... (ujung bawah dari window.simpanBahanBaku) ...
         alert('Berhasil! Bahan baku dan dokumen telah ditambahkan.');
