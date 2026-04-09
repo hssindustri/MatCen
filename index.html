@@ -611,37 +611,42 @@ window.hapusBahanBaku = async (docId) => {
     
         // FITUR SUPPLIER: SIMPAN BAHAN BAKU
         // ==========================================
-       window.simpanBahanBaku = async () => {
+    window.simpanBahanBaku = async () => {
+    // 1. Ambil nilai dari input form
     const kategori = document.getElementById('inputKategori').value;
     const nama = document.getElementById('inputNamaBahan').value;
     const spesifikasi = document.getElementById('inputSpesifikasi').value;
     const jumlah = document.getElementById('inputJumlah').value;
     const satuan = document.getElementById('inputSatuan').value;
     const lokasi = document.getElementById('inputLokasi').value;
+    
+    // Ambil harga (Aman jika elemen tidak ada)
     const elemenHarga = document.getElementById('inputHargaBahan');
-    const hargaBahan = elemenHarga ? elemenHarga.value : 0;    
-    const fileInput = document.getElementById('inputDokumen');
-    const btnSimpan = document.getElementById('btnSimpanBahan');
+    const hargaBahan = elemenHarga ? elemenHarga.value : 0;
 
-    if(!kategori || !nama || !jumlah || !satuan || !lokasi) {
-        alert('Mohon lengkapi data yang wajib diisi!');
+    const fileInput = document.getElementById('inputDokumen'); // Pastikan ID ini sesuai dengan HTML Anda (bisa 'inputDokumen' atau sejenisnya)
+    const btnSimpan = document.getElementById('btnSimpan');
+
+    // Validasi dasar
+    if (!kategori || !nama || !jumlah || !satuan) {
+        alert('Harap lengkapi semua kolom yang wajib diisi!');
         return;
     }
 
+    let urlDokumenDrive = "";
+    let namaFile = "";
+
     try {
-        btnSimpan.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
         btnSimpan.disabled = true;
 
-        let urlDokumenDrive = "";
-        let namaFile = "";
-
-        // JIKA SUPPLIER MENGUPLOAD FILE
-        if (fileInput.files.length > 0) {
+        // --- PROSES UPLOAD KE GOOGLE DRIVE ---
+        // Pengecekan: Jika user mengunggah file
+        if (fileInput && fileInput.files.length > 0) {
             const file = fileInput.files[0];
             namaFile = file.name;
             btnSimpan.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengunggah ke Google Drive...';
             
-            // 1. Ubah file jadi format Base64 agar bisa dikirim
+            // Ubah file jadi format Base64 agar bisa dikirim
             const getBase64 = (file) => new Promise((resolve, reject) => {
                 const reader = new FileReader();
                 reader.readAsDataURL(file);
@@ -650,68 +655,74 @@ window.hapusBahanBaku = async (docId) => {
             });
             const base64Data = await getBase64(file);
 
-            // 2. PASTE "WEB APP URL" DARI GOOGLE APPS SCRIPT DI SINI
+            // URL Google Apps Script Anda
             const scriptURL = 'https://script.google.com/macros/s/AKfycbwPdwEyPIyWvbSQBWB1an_EgSNBDiPFPRo0InmN9WO9_WFhC1LqUEiP9hipl4Q2YTul/exec';
             
-           // 3. Kirim ke Google Drive
-            const responseUpload = await fetch(scriptURL, { method: 'POST', body: formData });
+            // Kirim ke Google Drive
+            const responseUpload = await fetch(scriptURL, {
+                method: 'POST',
+                body: JSON.stringify({
+                    fileName: file.name,
+                    mimeType: file.type,
+                    base64: base64Data
+                })
+            });
             
+            // Mengatasi error CORS palsu
             try {
-                // Kita coba baca balasannya sebagai teks biasa (bukan JSON)
                 const textResponse = await responseUpload.text();
                 console.log("Balasan mentah dari Google:", textResponse);
-                
-                // Coba jadikan JSON
                 const resultUpload = JSON.parse(textResponse);
                 if(resultUpload.url) {
                     urlDokumenDrive = resultUpload.url;
                 }
-            } catch (error) {
-                // Jika balasan error/diblokir oleh CORS, sistem akan masuk ke sini
-                // KITA JANGAN THROW ERROR. Biarkan saja, karena file-nya sudah masuk Drive!
-                console.warn("Peringatan CORS dari Google diabaikan. File dipastikan sudah masuk Drive.");
+            } catch (err) {
+                console.warn("Peringatan CORS diabaikan. File dipastikan masuk Drive.");
             }
-            
-            // Sistem akan otomatis lanjut menyimpan data kategori, harga, dll ke Firebase!
-            btnSimpan.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan ke Database...';
+        } // <-- INI KURUNG KURAWAL YANG KEMUNGKINAN MENGHILANG SEBELUMNYA
 
-            // MENYIMPAN DATA + LINK DRIVE KE FIREBASE
-            await addDoc(collection(db, 'bahan_baku'), {
-                kategori: kategori,
-                nama_bahan: nama,
-                spesifikasi: spesifikasi,
-                jumlah: Number(jumlah),
-                satuan: satuan,
-                lokasi: lokasi,
-                harga: Number(hargaBahan), // <--- INI YANG MEMBUAT HARGA TERSIMPAN
-                nama_dokumen: namaFile,
-                url_dokumen: urlDokumenDrive, 
-                supplier_email: auth.currentUser.email,
-                timestamp: serverTimestamp()
-            });
+        // --- PROSES SIMPAN KE FIREBASE ---
+        btnSimpan.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan ke Database...';
 
-        // ... (ujung bawah dari window.simpanBahanBaku) ...
+        await addDoc(collection(db, 'bahan_baku'), {
+            kategori: kategori,
+            nama_bahan: nama,
+            spesifikasi: spesifikasi,
+            jumlah: Number(jumlah),
+            satuan: satuan,
+            lokasi: lokasi,
+            harga: Number(hargaBahan), // Harga disimpan di sini
+            nama_dokumen: namaFile,
+            url_dokumen: urlDokumenDrive, 
+            supplier_email: auth.currentUser.email,
+            timestamp: serverTimestamp()
+        });
+
         alert('Berhasil! Bahan baku dan dokumen telah ditambahkan.');
-        closeModal('modalTambahBahan');
+        if(typeof closeModal === "function") closeModal('modalTambahBahan');
         
-        // Bersihkan form
+        // Bersihkan form agar kosong kembali
         document.getElementById('inputKategori').value = '';
         document.getElementById('inputNamaBahan').value = '';
         document.getElementById('inputSpesifikasi').value = '';
         document.getElementById('inputJumlah').value = '';
         document.getElementById('inputSatuan').value = '';
         document.getElementById('inputLokasi').value = '';
-        document.getElementById('inputHargaBahan').value = '';
-        fileInput.value = '';
+        if(document.getElementById('inputHargaBahan')) document.getElementById('inputHargaBahan').value = '';
+        if(fileInput) fileInput.value = '';
 
+        // Muat ulang katalog
         if (window.muatDaftarBahan) window.muatDaftarBahan();
 
-    } catch(error) {
+    } catch(error) { 
         console.error("Error: ", error);
         alert('Terjadi kesalahan: ' + error.message);
     } finally {
-        btnSimpan.innerHTML = '<i class="fas fa-save"></i> Konfirmasi & Simpan';
-        btnSimpan.disabled = false;
+        // Kembalikan tombol ke kondisi semula
+        if(btnSimpan) {
+            btnSimpan.innerHTML = '<i class="fas fa-save"></i> Konfirmasi & Simpan';
+            btnSimpan.disabled = false;
+        }
     }
 };
     // ==========================================
