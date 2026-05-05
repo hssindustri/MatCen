@@ -357,6 +357,12 @@
         <button onclick="prosesKonfirmasiSupplier()" class="btn-primary" style="width:100%;"><i class="fas fa-paper-plane"></i> Kirim ke IKM</button>
     </div>
 </div>
+            <div id="panelSupplier">
+    <a href="riwayat.html" class="btn-primary" style="display: inline-block; margin-bottom: 15px;">
+        <i class="fas fa-history"></i> Lihat & Unduh Riwayat Pesanan
+    </a>
+</div>
+            
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
@@ -1084,9 +1090,8 @@ onAuthStateChanged(auth, async (user) => {
         if(document.getElementById('ikmDashboard')) document.getElementById('ikmDashboard').style.display = 'none';
         if(document.getElementById('navAdmin')) document.getElementById('navAdmin').style.display = 'none';
         
-        const wadahKatalog = document.getElementById('katalogBahanBakuContainer');
+      const wadahKatalog = document.getElementById('katalogBahanBakuContainer');
         if (wadahKatalog) {
-            // INI ADALAH BAGIAN YANG SEMPAT TERHAPUS PENUTUPNYA
             wadahKatalog.innerHTML = `
                 <div style="grid-column: 1 / -1; text-align: center; padding: 50px 20px; background: #fff3e0; border-radius: 15px; border: 2px dashed #ffb74d;">
                     <i class="fas fa-lock" style="font-size: 3rem; color: #e65100; margin-bottom: 15px;"></i>
@@ -1096,17 +1101,8 @@ onAuthStateChanged(auth, async (user) => {
             `; 
         }
     }
-}); // <-- INI ADALAH PENUTUP FUNGSI LOGIN YANG JUGA SEMPAT TERHAPUS
+}); // <-- PENUTUP FUNGSI onAuthStateChanged
 
-        <div id="panelSupplier" ...>
-    <a href="riwayat.html" class="btn-primary" style="display: inline-block; margin-bottom: 15px;">
-        <i class="fas fa-history"></i> Lihat & Unduh Riwayat Pesanan
-    </a>
-</div>
-    } catch(err) {
-        console.log("Ralat semasa menyemak pesanan terbengkalai: ", err);
-    }
-};
 </script>
 </body>
 </html>
