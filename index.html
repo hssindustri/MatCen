@@ -274,6 +274,9 @@
         <button onclick="window.location.href='Pesanan.html'" class="btn-primary" style="width: 100%; font-size: 1.1rem; padding: 15px; border-radius: 30px;">
             <i class="fas fa-arrow-right"></i> Buka Halaman Pesanan
         </button>
+        <button onclick="openModal('modalPermintaanKhusus')" class="btn-secondary" style="width: 100%; margin-top: 15px; font-size: 1.1rem; padding: 15px; border-radius: 30px; border: 2px solid var(--primary-color); color: var(--primary-color); background: transparent;">
+    <i class="fas fa-bullhorn"></i> Ajukan Bahan Baku Khusus (Di Luar Katalog)
+</button>
     </div>
 </section>
 
@@ -372,6 +375,48 @@
             <button onclick="simpanPesanan()" id="btnKirimPesanan" class="btn-primary" style="width: 100%; font-size: 1.1rem; padding: 12px; border-radius: 25px;"><i class="fas fa-paper-plane"></i> Kirim Pesanan Sekarang</button>
         </div>
     </div>
+
+    <div id="modalPermintaanKhusus" class="modal" style="display:none;">
+    <div class="modal-content" style="max-width: 550px;">
+        <span class="close" onclick="closeModal('modalPermintaanKhusus')">×</span>
+        <h2 style="color: var(--primary-color); margin-bottom: 10px;"><i class="fas fa-clipboard-question"></i> Permintaan Bahan Khusus</h2>
+        <p style="font-size: 0.9rem; color: #666; margin-bottom: 20px;">Gunakan formulir ini untuk mencari bahan baku yang tidak ada di katalog. Admin MatCen akan membantu mencarikan supplier yang tepat untuk kebutuhan Anda.</p>
+
+        <label style="font-weight: 600; font-size: 0.9rem;">Nama Bahan Baku yang Dicari <span style="color:red;">*</span></label>
+        <input type="text" id="reqNamaBahan" placeholder="Contoh: Biji Plastik PET Grade A Transparan" style="width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #ccc;">
+
+        <label style="font-weight: 600; font-size: 0.9rem;">Spesifikasi Detail <span style="color:red;">*</span></label>
+        <textarea id="reqSpesifikasi" rows="3" placeholder="Tuliskan spesifikasi teknis, ukuran, brand, atau kualitas secara mendetail..." style="width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #ccc;"></textarea>
+
+        <div style="display: flex; gap: 15px; margin-bottom: 15px;">
+            <div style="flex: 1;">
+                <label style="font-weight: 600; font-size: 0.9rem;">Estimasi Kebutuhan <span style="color:red;">*</span></label>
+                <input type="number" id="reqJumlah" placeholder="0" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc;">
+            </div>
+            <div style="flex: 1;">
+                <label style="font-weight: 600; font-size: 0.9rem;">Satuan <span style="color:red;">*</span></label>
+                <input type="text" id="reqSatuan" placeholder="Kg, Ton, Roll, dll" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc;">
+            </div>
+        </div>
+
+        <label style="font-weight: 600; font-size: 0.9rem; color: #d48b00;"><i class="fas fa-sync-alt"></i> Siklus Kebutuhan Rutin</label>
+        <select id="reqRutin" style="width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #d48b00; background: #fffdf5;">
+            <option value="Hanya Sekali (Project)">Hanya Sekali Beli (Kebutuhan Insidental)</option>
+            <option value="Rutin - Setiap Minggu">Rutin - Setiap Minggu</option>
+            <option value="Rutin - Setiap Bulan">Rutin - Setiap Bulan</option>
+            <option value="Rutin - Beberapa Bulan Sekali">Rutin - Beberapa Bulan Sekali</option>
+            <option value="Rutin - Setiap Tahun">Rutin - Setiap Tahun</option>
+        </select>
+
+        <label style="font-weight: 600; font-size: 0.9rem;">Target Harga Maksimal / Anggaran (Opsional)</label>
+        <input type="number" id="reqHarga" placeholder="Rp (Isi jika ada target harga)" style="width: 100%; padding: 10px; margin-bottom: 20px; border-radius: 8px; border: 1px solid #ccc;">
+
+        <button id="btnKirimReq" onclick="simpanPermintaanKhusus()" class="btn-primary" style="width: 100%; font-size: 1.1rem; padding: 12px; border-radius: 25px;">
+            <i class="fas fa-paper-plane"></i> Kirim Permintaan Khusus
+        </button>
+    </div>
+</div>
+    
 </div> <div id="modalKonfirmasiSupplier" class="modal" style="display:none;">
     <div class="modal-content" style="max-width: 400px;">
         <span class="close" onclick="closeModal('modalKonfirmasiSupplier')">×</span>
@@ -1045,6 +1090,64 @@ if(resultUpload.status === "success") {
                 btnKirim.disabled = false;
             }
         };
+
+        // ==========================================
+// FITUR IKM: AJUKAN PERMINTAAN KHUSUS (RFQ)
+// ==========================================
+window.simpanPermintaanKhusus = async () => {
+    // Ambil data dari form
+    const namaBahan = document.getElementById('reqNamaBahan').value;
+    const spesifikasi = document.getElementById('reqSpesifikasi').value;
+    const jumlah = document.getElementById('reqJumlah').value;
+    const satuan = document.getElementById('reqSatuan').value;
+    const rutin = document.getElementById('reqRutin').value;
+    const harga = document.getElementById('reqHarga').value;
+    const btnKirim = document.getElementById('btnKirimReq');
+
+    // Validasi Kolom Wajib
+    if (!namaBahan || !spesifikasi || !jumlah || !satuan) {
+        alert("Peringatan: Harap lengkapi Nama Bahan, Spesifikasi, Jumlah, dan Satuan!");
+        return;
+    }
+
+    try {
+        // Efek loading tombol
+        btnKirim.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim Permintaan...';
+        btnKirim.disabled = true;
+
+        // Simpan ke koleksi baru 'permintaan_khusus'
+        await addDoc(collection(db, 'permintaan_khusus'), {
+            nama_bahan: namaBahan,
+            spesifikasi: spesifikasi,
+            jumlah_estimasi: Number(jumlah),
+            satuan: satuan,
+            kebutuhan_rutin: rutin,
+            target_harga: harga ? Number(harga) : 0,
+            email_ikm: auth.currentUser.email,
+            status_permintaan: 'Menunggu Tanggapan Admin',
+            waktu_pengajuan: serverTimestamp()
+        });
+
+        alert("Berhasil! Permintaan Bahan Khusus Anda telah dikirim. Tim MatCen akan segera menghubungi Anda setelah menemukan supplier yang sesuai.");
+        closeModal('modalPermintaanKhusus');
+
+        // Bersihkan isi form setelah berhasil
+        document.getElementById('reqNamaBahan').value = '';
+        document.getElementById('reqSpesifikasi').value = '';
+        document.getElementById('reqJumlah').value = '';
+        document.getElementById('reqSatuan').value = '';
+        document.getElementById('reqHarga').value = '';
+        document.getElementById('reqRutin').selectedIndex = 0;
+        
+    } catch (error) {
+        console.error("Gagal mengirim permintaan khusus:", error);
+        alert("Terjadi kesalahan jaringan: " + error.message);
+    } finally {
+        // Kembalikan tombol seperti semula
+        btnKirim.innerHTML = '<i class="fas fa-paper-plane"></i> Kirim Permintaan Khusus';
+        btnKirim.disabled = false;
+    }
+};
         
 onAuthStateChanged(auth, async (user) => {
     if (user) {
