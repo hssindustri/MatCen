@@ -25,10 +25,13 @@
         <ul class="nav-menu" style="display: flex; gap: 15px; align-items: center; list-style: none; margin: 0; padding: 0;">
             <li id="navAdmin" style="display: none;"><a href="#adminDashboard" class="btn-primary" style="background-color: #F15A24; padding: 8px 15px; font-size: 0.85rem;"><i class="fas fa-user-check"></i> Panel Verifikasi</a></li>
             <li id="navLogin" style="display: block; cursor: pointer; font-weight: 600; color: var(--primary-color);" onclick="openModal('loginModal')"><i class="fas fa-sign-in-alt"></i> Masuk</li>
-            <li id="navUser" class="nav-user" style="display:none; align-items: center; gap: 10px;">
-                <span id="userName" style="font-weight: 600; font-size: 0.85rem; color: var(--text-dark);"></span>
-                <button onclick="logout()" class="btn-secondary" style="padding: 5px 15px; font-size: 0.8rem; border-radius: 20px;"><i class="fas fa-sign-out-alt"></i> Keluar</button>
-            </li>
+            <li id="navUser" class="nav-user" style="display:none; align-items: center; gap: 15px;">
+            <a href="Pesanan.html" style="color: var(--primary-color); text-decoration: none; font-weight: 600; font-size: 0.9rem;">
+            <i class="fas fa-receipt"></i> Pesanan
+            </a>
+        <span id="userName" style="font-weight: 600; font-size: 0.85rem; color: var(--text-dark);"></span>
+    <button onclick="logout()" class="btn-secondary" style="padding: 5px 15px; font-size: 0.8rem; border-radius: 20px;"><i class="fas fa-sign-out-alt"></i> Keluar</button>
+</li>
         </ul>
     </div>
 </header>
@@ -240,14 +243,39 @@
             <ul id="pendingList" style="list-style: none; padding: 0;"></ul>
         </section>
 
-        <section id="supplierDashboard" class="section" style="display:none; background: #fff; border-top: 4px solid #0056b3; margin-top: 2rem; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f0f0f0; padding-bottom: 1rem; margin-bottom: 1rem;">
-                <h2 style="color: #002D5B;"><i class="fas fa-truck"></i> Panel Supplier</h2>
-                <span class="gov-badge" style="font-size: 1rem; background-color: #0056b3;">Area Supplier</span>
-                <button class="btn-primary" onclick="openModal('modalTambahBahan')" style="margin-bottom: 20px;">
-    <i class="fas fa-plus-circle"></i> Tambah Bahan Baku Baru
-</button>
-            </div>
+     <section id="supplierDashboard" class="section" style="display:none; background: #fff; border-top: 4px solid #0056b3; margin-top: 2rem; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f0f0f0; padding-bottom: 1rem; margin-bottom: 1rem; padding: 0 2rem; padding-top: 2rem;">
+        <h2 style="color: #002D5B;"><i class="fas fa-truck"></i> Panel Supplier</h2>
+        <div>
+            <span class="gov-badge" style="font-size: 1rem; background-color: #0056b3; margin-right: 15px;">Area Supplier</span>
+            <button class="btn-primary" onclick="openModal('modalTambahBahan')">
+                <i class="fas fa-plus-circle"></i> Tambah Bahan Baku Baru
+            </button>
+        </div>
+    </div>
+    
+    <div style="padding: 0 2rem 2rem 2rem;">
+        <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; border-left: 5px solid #002D5B;">
+            <h4 style="margin-bottom: 10px; color: #002D5B;">Manajemen Pesanan</h4>
+            <p style="font-size: 0.95rem; margin-bottom: 15px; color: #555;">Lihat daftar pesanan masuk dari IKM, berikan konfirmasi, dan kelola riwayat transaksi Anda di sini.</p>
+            <button onclick="window.location.href='Pesanan.html'" class="btn-primary" style="background-color: #002D5B;">
+                <i class="fas fa-clipboard-list"></i> Buka Halaman Pesanan
+            </button>
+        </div>
+    </div>
+</section>
+    
+    <section id="ikmDashboard" class="section" style="display:none; padding: 3rem 5%; background: var(--bg-light); margin-top: 2rem; border-radius: 10px;">
+    <div style="background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center; max-width: 600px; margin: 0 auto;">
+        <i class="fas fa-shopping-bag" style="font-size: 3.5rem; color: var(--primary-color); margin-bottom: 20px;"></i>
+        <h2 style="color: var(--primary-color); margin-bottom: 10px;">Pesanan Saya</h2>
+        <p style="color: #666; margin-bottom: 25px;">Pantau status pesanan bahan baku Anda, lihat konfirmasi dari supplier, dan selesaikan transaksi di sini.</p>
+        
+        <button onclick="window.location.href='Pesanan.html'" class="btn-primary" style="width: 100%; font-size: 1.1rem; padding: 15px; border-radius: 30px;">
+            <i class="fas fa-arrow-right"></i> Buka Halaman Pesanan
+        </button>
+    </div>
+</section>
 
     </main>
 <div id="modalTambahBahan" class="modal" style="display:none;">
@@ -356,11 +384,6 @@
         
         <button onclick="prosesKonfirmasiSupplier()" class="btn-primary" style="width:100%;"><i class="fas fa-paper-plane"></i> Kirim ke IKM</button>
     </div>
-</div>
-            <div id="panelSupplier">
-    <a href="Pesanan.html" class="btn-primary" style="display: inline-block; margin-bottom: 15px;">
-        <i class="fas fa-history"></i> Lihat & Unduh Riwayat Pesanan
-    </a>
 </div>
             
     <script type="module">
